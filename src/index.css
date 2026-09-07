@@ -9,48 +9,58 @@
       is a brand surface, not a themed app surface. See ThemeProvider.
    ═══════════════════════════════════════════════════════════════════ */
 
-@import 'tailwindcss';
+@import 'tailwindcss' source(none);
+
+/* Tailwind v4 auto-detects sources from the project root, which means it
+   happily harvests class names out of AUDIT.md, REWRITE.md and the compiled
+   test bundle and emits dead rules for them. Scope it to the code that
+   actually ships. */
+@source '../index.html';
+@source '../src';
 
 /* ───────────────────────────────────────────────────────────────────
    1. RAW PALETTE — never used directly by components
    ─────────────────────────────────────────────────────────────────── */
 :root {
-  /* Brand cyan */
-  --cyan-300: #7be8ff;
-  --cyan-400: #38d9ff;
-  --cyan-500: #07ccfd; /* fill only — 1.9:1 as text on white, DO NOT use as text on light */
-  --cyan-600: #06b8e4;
-  --cyan-700: #0e7490; /* 5.36:1 on white — the accessible text variant */
-  --cyan-800: #075985;
+  /* ── Brand gold — sampled from the Awraq Skills logo ──
+     #C9A227 is the logo gold. It is a FILL colour: 2.42:1 as text on white,
+     so it must never be used for text on a light surface. The `-700`/`-800`
+     steps below are its accessible text equivalents. */
+  --gold-300: #eacb74;
+  --gold-400: #d6b03a; /* 7.03:1 on navy — gold AS text on dark */
+  --gold-500: #c9a227; /* THE logo gold. Fill only on light surfaces. */
+  --gold-600: #b8901f;
+  --gold-700: #856310; /* 5.54:1 on white — gold AS text on light */
+  --gold-800: #6b4f0d;
 
-  /* Brand support (accents, illustration, gradients) */
-  --violet-500: #9230f0;
-  --violet-600: #7c11fb;
-  --pink-500: #f86bcf;
-  --amber-400: #ffcd00;
+  /* ── Brand navy — sampled from the logo background ── */
+  --navy-900: #0c1d36;
+  --navy-800: #12294a; /* THE logo navy */
+  --navy-700: #1a3557;
+  --navy-600: #274363;
+  --navy-500: #3a5878;
 
-  /* Ink — marketing surfaces */
-  --ink-900: #080014;
-  --ink-800: #0e0024;
-  --ink-700: #14032e;
-  --ink-600: #1a0a36;
+  /* Navy-tinted neutrals, so light surfaces sit in the same family */
+  --slate-50: #f7f9fb;
+  --slate-100: #eff3f8;
+  --slate-200: #dde4ee;
+  --slate-300: #c6d0de;
 
   /* Neutrals */
   --white: #ffffff;
-  --gray-50: #fbfbfa;
-  --gray-100: #f4f4f2;
-  --gray-200: #e5e7eb;
-  --gray-300: #d1d5db;
-  --gray-500: #6b7280; /* 4.83:1 on white — lowest usable grey for text */
-  --gray-600: #4b5563;
-  --gray-900: #111827;
+  --gray-500: #61708a; /* 4.71:1 on the light canvas — lowest usable for text */
+  --gray-600: #4b5c74; /* 6.46:1 */
+  --gray-900: var(--navy-800); /* body text IS the brand navy */
 
-  /* Status — all verified on white */
-  --green-500: #10b981;
-  --green-700: #047857; /* 5.48:1 */
-  --green-900: #064e3b;
-  --red-700: #b91c1c; /* 6.47:1 */
-  --amber-700: #b45309; /* 5.02:1 */
+  /* Status — verified on the light canvas (#F7F9FB).
+     Warning is a burnt orange rather than amber: with gold as the brand
+     colour, an amber warning would be indistinguishable from a brand accent. */
+  --green-500: #34d399;
+  --green-700: #0f7a54; /* 5.06:1 */
+  --red-400: #fca5a5;
+  --red-700: #c0341f; /* 5.30:1 */
+  --orange-400: #fb923c;
+  --orange-700: #9a5b0a; /* 5.14:1 */
 
   /* Motion */
   --ease-out-quart: cubic-bezier(0.25, 1, 0.5, 1);
@@ -69,36 +79,36 @@
    ─────────────────────────────────────────────────────────────────── */
 :root,
 [data-theme='light'] {
-  --canvas: var(--gray-50);
+  --canvas: var(--slate-50);
   --surface: var(--white);
-  --surface-2: var(--gray-100);
-  --surface-inset: var(--gray-50);
+  --surface-2: var(--slate-100);
+  --surface-inset: var(--slate-50);
 
   --fg: var(--gray-900);
   --fg-muted: var(--gray-600);
   --fg-subtle: var(--gray-500);
   --fg-inverse: var(--white);
 
-  --line: var(--gray-200);
-  --line-strong: var(--gray-300);
+  --line: var(--slate-200);
+  --line-strong: var(--slate-300);
 
-  --brand: var(--cyan-500);
-  --brand-hover: var(--cyan-600);
-  --brand-fg: #0f172a; /* text ON a brand fill — 9.41:1 */
-  --brand-text: var(--cyan-700); /* brand AS text on light — 5.36:1 */
-  --brand-soft: rgb(7 204 253 / 0.1);
-  --brand-ring: var(--cyan-700);
+  --brand: var(--gold-500);
+  --brand-hover: var(--gold-600);
+  --brand-fg: var(--navy-800); /* navy ON gold — 6.02:1, exactly as in the logo */
+  --brand-text: var(--gold-700); /* gold AS text on light — 5.54:1 */
+  --brand-soft: rgb(201 162 39 / 0.14);
+  --brand-ring: var(--gold-700);
 
   --success: var(--green-700);
   --success-text: var(--green-700);
-  --success-soft: rgb(4 120 87 / 0.1);
+  --success-soft: rgb(15 122 84 / 0.1);
   --danger: var(--red-700);
   --danger-text: var(--red-700);
-  --danger-soft: rgb(185 28 28 / 0.08);
-  --warning-text: var(--amber-700);
-  --warning-soft: rgb(180 83 9 / 0.1);
+  --danger-soft: rgb(192 52 31 / 0.08);
+  --warning-text: var(--orange-700);
+  --warning-soft: rgb(154 91 10 / 0.1);
 
-  --shadow-color: 220 40% 12%;
+  --shadow-color: 215 45% 14%;
   color-scheme: light;
 }
 
@@ -106,36 +116,36 @@
    3. SEMANTIC TOKENS — dark
    ─────────────────────────────────────────────────────────────────── */
 [data-theme='dark'] {
-  --canvas: var(--ink-800);
-  --surface: var(--ink-700);
-  --surface-2: var(--ink-600);
-  --surface-inset: var(--ink-900);
+  --canvas: var(--navy-900);
+  --surface: var(--navy-800);
+  --surface-2: var(--navy-700);
+  --surface-inset: #071426;
 
-  --fg: #f9fafb;
-  --fg-muted: #cbd5e1;
-  --fg-subtle: #94a3b8; /* 5.9:1 on --surface */
-  --fg-inverse: var(--gray-900);
+  --fg: #f2f6fb;
+  --fg-muted: #c3cfe0; /* 9.24:1 on --surface */
+  --fg-subtle: #93a5bf; /* 5.81:1 on --surface, 4.95:1 on --surface-2 */
+  --fg-inverse: var(--navy-800);
 
-  --line: #2d1b4e;
-  --line-strong: #3d2a5e;
+  --line: var(--navy-600);
+  --line-strong: var(--navy-500);
 
-  --brand: var(--cyan-500);
-  --brand-hover: var(--cyan-400);
-  --brand-fg: #001018;
-  --brand-text: var(--cyan-400); /* 12:1 on dark surfaces */
-  --brand-soft: rgb(7 204 253 / 0.14);
-  --brand-ring: var(--cyan-400);
+  --brand: var(--gold-500);
+  --brand-hover: var(--gold-400);
+  --brand-fg: var(--navy-900);
+  --brand-text: var(--gold-400); /* 7.03:1 on --surface */
+  --brand-soft: rgb(201 162 39 / 0.16);
+  --brand-ring: var(--gold-400);
 
   --success: var(--green-500);
-  --success-text: #34d399;
-  --success-soft: rgb(16 185 129 / 0.16);
-  --danger: #f87171;
-  --danger-text: #fca5a5;
-  --danger-soft: rgb(248 113 113 / 0.14);
-  --warning-text: #fbbf24;
-  --warning-soft: rgb(251 191 36 / 0.14);
+  --success-text: var(--green-500); /* 7.58:1 */
+  --success-soft: rgb(52 211 153 / 0.16);
+  --danger: var(--red-400);
+  --danger-text: var(--red-400); /* 7.67:1 */
+  --danger-soft: rgb(252 165 165 / 0.14);
+  --warning-text: var(--orange-400);
+  --warning-soft: rgb(251 146 60 / 0.16);
 
-  --shadow-color: 260 60% 2%;
+  --shadow-color: 215 60% 3%;
   color-scheme: dark;
 }
 
@@ -172,12 +182,12 @@
   --color-warning-text: var(--warning-text);
   --color-warning-soft: var(--warning-soft);
 
-  /* Fixed marketing surfaces (never themed) */
-  --color-ink: var(--ink-800);
-  --color-ink-deep: var(--ink-900);
-  --color-accent-violet: var(--violet-500);
-  --color-accent-pink: var(--pink-500);
-  --color-accent-amber: var(--amber-400);
+  /* Fixed marketing surfaces (never themed) — the logo's own navy */
+  --color-ink: var(--navy-800);
+  --color-ink-deep: var(--navy-900);
+  --color-ink-raised: var(--navy-700);
+  --color-gold: var(--gold-500);
+  --color-gold-bright: var(--gold-300);
 
   --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
   --font-serif: 'Fraunces', Georgia, 'Times New Roman', serif;

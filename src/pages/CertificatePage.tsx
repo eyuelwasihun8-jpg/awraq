@@ -118,19 +118,19 @@ export default function CertificatePage() {
       {/* The certificate itself */}
       <div
         ref={sheetRef}
-        className="relative overflow-hidden rounded-card border-4 border-brand bg-white p-8 text-center text-slate-900 shadow-xl sm:p-14 print:border-2 print:shadow-none"
+        className="relative overflow-hidden rounded-card border-4 border-[#C9A227] bg-white p-8 text-center text-slate-900 shadow-xl sm:p-14 print:border-2 print:shadow-none"
       >
         <div
           aria-hidden
           className="pointer-events-none absolute inset-0 opacity-[0.04]"
           style={{
             backgroundImage:
-              'repeating-linear-gradient(45deg, #0E0024 0 2px, transparent 2px 14px)',
+              'repeating-linear-gradient(45deg, #12294A 0 2px, transparent 2px 14px)',
           }}
         />
 
         <div className="relative">
-          <Award className="mx-auto size-14 text-[#0E7490]" aria-hidden />
+          <Award className="mx-auto size-14 text-[#856310]" aria-hidden />
           <p className="mt-5 text-xs font-extrabold uppercase tracking-[0.3em] text-slate-500">
             {t('certificate.title')}
           </p>

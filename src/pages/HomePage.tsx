@@ -97,8 +97,8 @@ export default function HomePage() {
         {/* Decorative field. aria-hidden and pointer-events-none so it never
             intercepts a click or gets announced. */}
         <div aria-hidden className="pointer-events-none absolute inset-0 -z-10">
-          <div className="absolute -top-40 start-1/4 size-[38rem] rounded-full bg-brand/20 blur-[140px]" />
-          <div className="absolute -bottom-52 end-0 size-[32rem] rounded-full bg-violet-500/20 blur-[140px]" />
+          <div className="absolute -top-40 start-1/4 size-[38rem] rounded-full bg-gold/15 blur-[140px]" />
+          <div className="absolute -bottom-52 end-0 size-[32rem] rounded-full bg-ink-raised blur-[120px]" />
         </div>
 
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">

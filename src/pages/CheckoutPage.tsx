@@ -192,7 +192,7 @@ export default function CheckoutPage() {
                         setMethod(id);
                         resetCheckout();
                       }}
-                      className="mt-0.5 size-4 accent-[var(--cyan-500)]"
+                      className="mt-0.5 size-4 accent-[var(--gold-500)]"
                     />
                     <Icon
                       className={cn('mt-0.5 size-5 shrink-0', active ? 'text-brand-text' : 'text-fg-subtle')}
@@ -256,7 +256,7 @@ export default function CheckoutPage() {
                     onChange={(e) => setAccepted(e.target.checked)}
                     aria-invalid={Boolean(errors.terms)}
                     aria-describedby={errors.terms ? 'terms-error' : undefined}
-                    className="mt-0.5 size-4 shrink-0 accent-[var(--cyan-500)]"
+                    className="mt-0.5 size-4 shrink-0 accent-[var(--gold-500)]"
                   />
                   <span className="text-sm leading-relaxed text-fg-muted">
                     <Trans

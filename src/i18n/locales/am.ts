@@ -9,7 +9,7 @@ import type { TranslationSchema } from './en';
  */
 export const am: TranslationSchema = {
   brand: {
-    name: 'አውራቅ',
+    name: 'አውራቅ ስኪልስ',
     tagline: 'ዲጂታል ግብይት፣ በቀላል ቋንቋ',
   },
 

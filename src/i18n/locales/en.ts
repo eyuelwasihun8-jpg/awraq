@@ -13,7 +13,7 @@
  */
 export const en = {
   brand: {
-    name: 'Awraq',
+    name: 'Awraq Skills',
     tagline: 'Digital marketing, in plain language',
   },
 

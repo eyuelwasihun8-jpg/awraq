@@ -135,7 +135,7 @@ export default function ConsultationPage() {
                       value={id}
                       checked={active}
                       onChange={() => setTopic(id)}
-                      className="mt-1 size-4 accent-[var(--cyan-500)]"
+                      className="mt-1 size-4 accent-[var(--gold-500)]"
                     />
                     <span>
                       <span className="block text-sm font-extrabold text-white">{label}</span>
@@ -237,7 +237,7 @@ export default function ConsultationPage() {
                         value={id}
                         checked={slot === id}
                         onChange={() => setSlot(id)}
-                        className="size-4 accent-[var(--cyan-500)]"
+                        className="size-4 accent-[var(--gold-500)]"
                       />
                       <Clock className="size-4 shrink-0 text-white/50" aria-hidden />
                       <span className="text-sm font-bold text-white">

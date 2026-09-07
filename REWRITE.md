@@ -37,17 +37,29 @@ re-implementing.
 | `eslint.config.js` | `react-hooks/exhaustive-deps` as **error**, `jsx-a11y` recommended, `no-explicit-any` as error. Each override carries a written justification. | M8 |
 | `ci/github-actions-ci.yml` | typecheck → lint → build → smoke tests on every push. **Move to `.github/workflows/ci.yml` to activate** — the pushing bot lacks GitHub's `workflows` permission. | M8 |
 
-**The colour fix (C5).** `#07CCFD` is 1.90:1 as text on white — it was used 175 times,
-including as the focus ring. The ramp is now split by role:
+**The colour fix (C5), now on the real brand.** `#07CCFD` was 1.90:1 as text on white —
+used 175 times, including as the focus ring. The whole ramp has since been rebuilt on the
+Awraq Skills logo (navy `#12294A`, gold `#C9A227`) and is split by role:
 
 | token | value | contrast |
 |---|---|---|
-| `--brand` (fill only) | `#07CCFD` | 9.41:1 with `#0F172A` on top |
-| `--brand-text` (light) | `#0E7490` | 5.36:1 on white |
-| `--brand-text` (dark) | `#38D9FF` | 12.01:1 on `#0E0024` |
-| `--success-text` | `#047857` | 5.48:1 |
-| `--danger-text` | `#B91C1C` | 6.47:1 |
-| `--warning-text` | `#B45309` | 5.02:1 |
+| `--brand` (fill only) | `#C9A227` | 6.02:1 with `#12294A` on top |
+| `--brand-fg` (on brand fill) | `#12294A` | 6.02:1 — the logo's own pairing |
+| `--brand-text` (light) | `#856310` | 5.54:1 on white |
+| `--brand-text` (dark) | `#D6B03A` | 7.03:1 on `#12294A` |
+| `--success-text` (light / dark) | `#0F7A54` / `#34D399` | 5.06:1 / 7.58:1 |
+| `--danger-text` (light / dark) | `#C0341F` / `#FCA5A5` | 5.30:1 / 7.67:1 |
+| `--warning-text` (light) | `#9A5B0A` | 5.14:1 |
+
+Two rules fall out of the logo and are written into the CSS comments:
+
+1. **Gold is a fill, never body text on light.** `#C9A227` on white is 2.42:1. `#856310`
+   is its accessible text twin. Same rule the old cyan needed, applied from day one.
+2. **Gold fills take navy text, not white.** White on gold is 2.42:1; navy on gold is
+   6.02:1 — which is exactly the pairing the logo itself uses.
+
+**Warning moved from amber to burnt orange** (`#9A5B0A`). An amber warning state sitting
+next to a gold brand accent is indistinguishable at a glance; the two now separate.
 
 **The dark-mode decision (H3).** Dark mode was half-built: HomePage forced `#0E0024`,
 Navbar forced `bg-white`. Rather than fake a third state, marketing surfaces (home, free,
@@ -181,6 +193,47 @@ what surfaces the C1 loop).
   certificate date is identical across two visits.
 
 ---
+
+## 11. Brand — Awraq Skills
+
+The site is now built on the supplied logo rather than the placeholder cyan/violet.
+
+**A caveat, stated plainly.** The logo image attached to the request never reached this
+workspace's filesystem, so the vectors below were rebuilt from the artwork as seen, not
+traced from the source file. The structure ("Awr" in the foreground colour, "aq" in gold,
+"SKILLS" locked up beneath, ™) and the two colours (`#12294A`, `#C9A227`) match. **Check
+the mark against your original before launch**, and if you have the vector, drop it in at
+`public/brand/wordmark.svg` — `src/components/BrandLogo.tsx` documents the one-line swap.
+
+| Asset | What it is |
+|---|---|
+| `src/components/BrandLogo.tsx` | `BrandMark` (inline SVG) + wordmark as **live text**, so it inherits the page font, stays selectable, recolours per theme, and costs ~1 kB instead of ~40 kB of JPG. |
+| `public/favicon.svg`, `public/brand/mark.svg` | The same mark, same path data. |
+| `public/apple-touch-icon.png` | 180×180, full-bleed, no alpha (iOS applies its own mask). |
+| `public/og-cover.png` | 1200×630 — the size Facebook, LinkedIn, Slack and X crop against. |
+| `scripts/generate-brand-assets.sh` | Regenerates both PNGs from the same geometry. The PNGs are no longer un-editable binaries. |
+
+**The mark is one letter, not two.** The first draft paired the "A" with a gold "aq"
+ligature to mirror the wordmark. At favicon size it read as "**A2**", and at 16px the two
+glyphs turned to mush. Carrying the white/gold split *inside* a single "A" says the same
+thing and survives a browser tab.
+
+**Raster weight was a real bug.** The old `og-cover.png` was 1.15 MB at 1424×752 and
+`apple-touch-icon.png` was 944 kB at 1024×1024 — wrong dimensions, and roughly 20× heavier
+than they needed to be. They are now **66 kB** and **3.2 kB**.
+
+**The 3D icon set was re-tinted, not replaced.** The audit said keep it, and it is still
+the most distinctive thing on the page — but a teal/pink/coral/purple set fights a
+navy-and-gold identity. All 108 colour stops were rotated in HSL onto two families (warm →
+the logo gold, cool → the logo navy) rather than remapped to a flat ramp, so every icon's
+internal light-to-shadow relationships — the thing that makes them read as 3D — survive
+intact. Near-white speculars keep their lightness so the gloss doesn't flatten.
+
+**Tailwind was harvesting class names out of the documentation.** v4 auto-detects sources
+from the project root, so `AUDIT.md`, `REWRITE.md` and the compiled test bundle were all
+being scanned — the shipped CSS contained real rules for classes that only ever appeared
+in prose (`bg-[#0E0024]` among them). `@import 'tailwindcss' source(none)` plus explicit
+`@source` directives now scope it to `index.html` and `src/`.
 
 ## Before you launch — the things code cannot fix
 
