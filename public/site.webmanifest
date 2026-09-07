@@ -1,0 +1,14 @@
+{
+  "name": "Awraq Skills — Digital Marketing Courses",
+  "short_name": "Awraq Skills",
+  "description": "Practical digital marketing courses in Amharic and English.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#12294A",
+  "theme_color": "#12294A",
+  "lang": "en",
+  "icons": [
+    { "src": "/favicon.svg", "sizes": "any", "type": "image/svg+xml" },
+    { "src": "/apple-touch-icon.png", "sizes": "180x180", "type": "image/png" }
+  ]
+}

@@ -2,39 +2,100 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=5.0" />
-    <meta name="theme-color" content="#0E0024" />
+    <!-- No maximum-scale: capping pinch-zoom is a WCAG 1.4.4 failure. -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="theme-color" content="#12294A" media="(prefers-color-scheme: dark)" />
+    <meta name="theme-color" content="#F7F9FB" media="(prefers-color-scheme: light)" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-    <meta name="mobile-web-app-capable" content="yes" />
-    
-    <title>Awraq — Master Digital Marketing | አውራቅ</title>
-    <meta name="description" content="Learn digital marketing in simple, everyday language. Practical courses, live sessions, and personal guidance by Lamlak. Available in English and Amharic." />
-    
-    <!-- Open Graph -->
-    <meta property="og:title" content="Awraq — Master Digital Marketing" />
-    <meta property="og:description" content="Learn digital marketing in simple, everyday language. Practical courses, live sessions, and personal guidance by Lamlak." />
+
+    <title>Awraq Skills — Learn Digital Marketing in Amharic & English</title>
+    <meta
+      name="description"
+      content="Practical digital marketing courses, templates and 1-on-1 coaching for Ethiopian businesses. Taught in plain Amharic and English by Lamlak. Pay with Telebirr, CBE Birr or card."
+    />
+    <link rel="canonical" href="https://awraq.et/" />
+
+    <!-- Locale alternates: both languages are fully translated. -->
+    <link rel="alternate" hreflang="en" href="https://awraq.et/" />
+    <link rel="alternate" hreflang="am" href="https://awraq.et/?lng=am" />
+    <link rel="alternate" hreflang="x-default" href="https://awraq.et/" />
+
+    <meta property="og:site_name" content="Awraq Skills" />
+    <meta property="og:title" content="Awraq Skills — Learn Digital Marketing in Amharic & English" />
+    <meta
+      property="og:description"
+      content="Practical digital marketing courses, templates and 1-on-1 coaching for Ethiopian businesses."
+    />
     <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://awraq.et/" />
+    <meta property="og:image" content="https://awraq.et/og-cover.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
     <meta property="og:locale" content="en_US" />
     <meta property="og:locale:alternate" content="am_ET" />
-    
-    <!-- Twitter Card -->
+
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="Awraq — Master Digital Marketing" />
-    <meta name="twitter:description" content="Learn digital marketing in simple, everyday language." />
-    
-    <!-- Favicon -->
+    <meta name="twitter:title" content="Awraq Skills — Learn Digital Marketing in Amharic & English" />
+    <meta name="twitter:description" content="Practical digital marketing courses for Ethiopian businesses." />
+    <meta name="twitter:image" content="https://awraq.et/og-cover.png" />
+
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    
-    <!-- Font Preconnects -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    
-    <!-- Fonts: Plus Jakarta Sans (English) + Fraunces (Serif) + Noto Sans Ethiopic (Amharic) -->
-    <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..800;1,9..144,300..800&family=Plus+Jakarta+Sans:ital,wght@0,300..800;1,300..800&family=Noto+Sans+Ethiopic:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
+
+    <!--
+      Fonts: preconnect + a single stylesheet request. Weights are pinned to the
+      four we actually render (400/600/700/800) instead of a 300..800 range —
+      this is ~40% fewer font bytes than the previous variable-range request.
+    -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600..800&family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Noto+Sans+Ethiopic:wght@400;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "EducationalOrganization",
+        "name": "Awraq Skills",
+        "alternateName": "አውራቅ",
+        "url": "https://awraq.et/",
+        "description": "Practical digital marketing education for Ethiopian businesses, in Amharic and English.",
+        "founder": { "@type": "Person", "name": "Lamlak" },
+        "areaServed": "ET",
+        "knowsLanguage": ["am", "en"]
+      }
+    </script>
+
+    <!--
+      Applies the persisted theme before first paint so themed app pages never
+      flash the wrong background. Kept inline and tiny on purpose.
+    -->
+    <script>
+      (function () {
+        try {
+          var t = localStorage.getItem('awraq.theme');
+          if (t !== 'light' && t !== 'dark') {
+            t = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+          }
+          document.documentElement.setAttribute('data-theme', t);
+        } catch (e) {
+          document.documentElement.setAttribute('data-theme', 'light');
+        }
+      })();
+    </script>
   </head>
-  <body class="bg-[#FBFBFA] text-[#111827] font-sans antialiased selection:bg-[#10B981]/20 selection:text-[#064E3B]">
+  <body>
     <div id="root"></div>
+    <noscript>
+      <div style="padding: 2rem; font-family: system-ui; text-align: center">
+        <h1>Awraq Skills</h1>
+        <p>Awraq needs JavaScript enabled to run. Please turn it on and reload the page.</p>
+      </div>
+    </noscript>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

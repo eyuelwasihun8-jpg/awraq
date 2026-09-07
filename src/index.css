@@ -1,372 +1,294 @@
-/* ═══════════════════════════════════════════════════════════
-   ALL @import MUST BE FIRST — Tailwind v4 rule
-═══════════════════════════════════════════════════════════ */
-@import "tailwindcss";
-@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Ethiopic:wght@400;500;600;700;800;900&display=swap');
+/* ═══════════════════════════════════════════════════════════════════
+   AWRAQ — DESIGN SYSTEM
+   Single source of truth for colour, type, motion and elevation.
 
-@theme {
-  --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  --font-serif: 'Fraunces', Georgia, Cambria, 'Times New Roman', Times, serif;
-  --font-amharic: 'Noto Sans Ethiopic', 'Plus Jakarta Sans', system-ui, sans-serif;
-}
+   Rules:
+   1. Components NEVER hardcode a hex value. Use a semantic token.
+   2. Every text/background pairing below is verified >= 4.5:1 (WCAG AA).
+   3. "Marketing" tokens are intentionally fixed-dark — the landing page
+      is a brand surface, not a themed app surface. See ThemeProvider.
+   ═══════════════════════════════════════════════════════════════════ */
 
-/* ═══════════════════════════════════════════════════════════
-   COLOR SYSTEM — Centralized Design Tokens
-   Supports both Light and Dark modes via [data-theme] attribute
-═══════════════════════════════════════════════════════════ */
+@import 'tailwindcss' source(none);
 
+/* Tailwind v4 auto-detects sources from the project root, which means it
+   happily harvests class names out of AUDIT.md, REWRITE.md and the compiled
+   test bundle and emits dead rules for them. Scope it to the code that
+   actually ships. */
+@source '../index.html';
+@source '../src';
+
+/* ───────────────────────────────────────────────────────────────────
+   1. RAW PALETTE — never used directly by components
+   ─────────────────────────────────────────────────────────────────── */
 :root {
-  /* ─── Fonts ─── */
-  --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  --font-serif: 'Fraunces', Georgia, Cambria, 'Times New Roman', Times, serif;
-  --font-amharic: 'Noto Sans Ethiopic', 'Plus Jakarta Sans', system-ui, sans-serif;
+  /* ── Brand gold — sampled from the Awraq Skills logo ──
+     #C9A227 is the logo gold. It is a FILL colour: 2.42:1 as text on white,
+     so it must never be used for text on a light surface. The `-700`/`-800`
+     steps below are its accessible text equivalents. */
+  --gold-300: #eacb74;
+  --gold-400: #d6b03a; /* 7.03:1 on navy — gold AS text on dark */
+  --gold-500: #c9a227; /* THE logo gold. Fill only on light surfaces. */
+  --gold-600: #b8901f;
+  --gold-700: #856310; /* 5.54:1 on white — gold AS text on light */
+  --gold-800: #6b4f0d;
 
-  /* ─── Light Mode (Default) ─── */
-  --color-bg-primary: #FBFBFA;
-  --color-bg-secondary: #FFFFFF;
-  --color-bg-tertiary: #F4F4F2;
-  --color-bg-elevated: #FFFFFF;
-  --color-bg-overlay: rgba(255, 255, 255, 0.95);
+  /* ── Brand navy — sampled from the logo background ── */
+  --navy-900: #0c1d36;
+  --navy-800: #12294a; /* THE logo navy */
+  --navy-700: #1a3557;
+  --navy-600: #274363;
+  --navy-500: #3a5878;
 
-  --color-text-primary: #111827;
-  --color-text-secondary: #4B5563;
-  --color-text-tertiary: #9CA3AF;
-  --color-text-inverse: #FFFFFF;
-  --color-text-muted: #6B7280;
+  /* Navy-tinted neutrals, so light surfaces sit in the same family */
+  --slate-50: #f7f9fb;
+  --slate-100: #eff3f8;
+  --slate-200: #dde4ee;
+  --slate-300: #c6d0de;
 
-  --color-border-primary: #E5E7EB;
-  --color-border-secondary: #D1D5DB;
-  --color-border-focus: #07CCFD;
-  --color-border-subtle: #F3F4F6;
+  /* Neutrals */
+  --white: #ffffff;
+  --gray-500: #61708a; /* 4.71:1 on the light canvas — lowest usable for text */
+  --gray-600: #4b5c74; /* 6.46:1 */
+  --gray-900: var(--navy-800); /* body text IS the brand navy */
 
-  --color-brand-primary: #07CCFD;
-  --color-brand-primary-hover: #06B8E4;
-  --color-brand-primary-light: rgba(7, 204, 253, 0.1);
-  --color-brand-primary-glow: rgba(7, 204, 253, 0.3);
-  --color-brand-secondary: #F86BCF;
-  --color-brand-secondary-hover: #E855BF;
-  --color-brand-secondary-light: rgba(248, 107, 207, 0.1);
-  --color-brand-accent: #FFCD00;
-  --color-brand-accent-hover: #E6B800;
-  --color-brand-accent-light: rgba(255, 205, 0, 0.1);
-  --color-brand-purple: #9230F0;
-  --color-brand-purple-hover: #7C11FB;
-  --color-brand-purple-light: rgba(146, 48, 240, 0.1);
+  /* Status — verified on the light canvas (#F7F9FB).
+     Warning is a burnt orange rather than amber: with gold as the brand
+     colour, an amber warning would be indistinguishable from a brand accent. */
+  --green-500: #34d399;
+  --green-700: #0f7a54; /* 5.06:1 */
+  --red-400: #fca5a5;
+  --red-700: #c0341f; /* 5.30:1 */
+  --orange-400: #fb923c;
+  --orange-700: #9a5b0a; /* 5.14:1 */
 
-  --color-success: #20B486;
-  --color-success-light: rgba(32, 180, 134, 0.1);
-  --color-warning: #F59E0B;
-  --color-warning-light: rgba(245, 158, 11, 0.1);
-  --color-error: #EF4444;
-  --color-error-light: rgba(239, 68, 68, 0.1);
+  /* Motion */
+  --ease-out-quart: cubic-bezier(0.25, 1, 0.5, 1);
+  --dur-fast: 120ms;
+  --dur-base: 200ms;
+  --dur-slow: 320ms;
 
-  --color-shadow-sm: rgba(0, 0, 0, 0.04);
-  --color-shadow-md: rgba(0, 0, 0, 0.08);
-  --color-shadow-lg: rgba(0, 0, 0, 0.12);
-  --color-shadow-xl: rgba(0, 0, 0, 0.16);
-
-  --color-navbar-bg-transparent: transparent;
-  --color-navbar-bg-scrolled: #FFFFFF;
-  --color-navbar-border-scrolled: #E5E7EB;
-
-  --color-footer-bg: #0D1527;
-  --color-footer-text: #9CA3AF;
-  --color-footer-text-secondary: #6B7280;
-  --color-footer-border: #1F2937;
-
-  --color-hero-bg: #0E0024;
-  --color-hero-text: #FFFFFF;
-  --color-hero-text-muted: rgba(255, 255, 255, 0.7);
-  --color-hero-border: rgba(255, 255, 255, 0.1);
-
-  --color-card-bg: #FFFFFF;
-  --color-card-bg-hover: #FAFAFA;
-  --color-card-border: #E5E7EB;
-  --color-card-shadow: rgba(0, 0, 0, 0.08);
-
-  --color-input-bg: #FFFFFF;
-  --color-input-border: #D1D5DB;
-  --color-input-focus-border: #07CCFD;
-  --color-input-placeholder: #9CA3AF;
-
-  --color-modal-overlay: rgba(0, 0, 0, 0.5);
-  --color-modal-bg: #FFFFFF;
+  /* Layout */
+  --nav-h: 4rem;
+  --radius-card: 20px;
+  --radius-control: 12px;
 }
 
-/* ─── Dark Mode ─── */
-[data-theme="dark"] {
-  --color-bg-primary: #0E0024;
-  --color-bg-secondary: #14032E;
-  --color-bg-tertiary: #1A0A36;
-  --color-bg-elevated: #1E1040;
-  --color-bg-overlay: rgba(20, 3, 46, 0.95);
+/* ───────────────────────────────────────────────────────────────────
+   2. SEMANTIC TOKENS — light (default)
+   ─────────────────────────────────────────────────────────────────── */
+:root,
+[data-theme='light'] {
+  --canvas: var(--slate-50);
+  --surface: var(--white);
+  --surface-2: var(--slate-100);
+  --surface-inset: var(--slate-50);
 
-  --color-text-primary: #F9FAFB;
-  --color-text-secondary: #D1D5DB;
-  --color-text-tertiary: #9CA3AF;
-  --color-text-inverse: #111827;
-  --color-text-muted: #9CA3AF;
+  --fg: var(--gray-900);
+  --fg-muted: var(--gray-600);
+  --fg-subtle: var(--gray-500);
+  --fg-inverse: var(--white);
 
-  --color-border-primary: #2D1B4E;
-  --color-border-secondary: #3D2A5E;
-  --color-border-focus: #07CCFD;
-  --color-border-subtle: #251540;
+  --line: var(--slate-200);
+  --line-strong: var(--slate-300);
 
-  --color-brand-primary: #07CCFD;
-  --color-brand-primary-hover: #06B8E4;
-  --color-brand-primary-light: rgba(7, 204, 253, 0.15);
-  --color-brand-primary-glow: rgba(7, 204, 253, 0.4);
-  --color-brand-secondary: #F86BCF;
-  --color-brand-secondary-hover: #E855BF;
-  --color-brand-secondary-light: rgba(248, 107, 207, 0.15);
-  --color-brand-accent: #FFCD00;
-  --color-brand-accent-hover: #E6B800;
-  --color-brand-accent-light: rgba(255, 205, 0, 0.15);
-  --color-brand-purple: #A855F7;
-  --color-brand-purple-hover: #9333EA;
-  --color-brand-purple-light: rgba(168, 85, 247, 0.15);
+  --brand: var(--gold-500);
+  --brand-hover: var(--gold-600);
+  --brand-fg: var(--navy-800); /* navy ON gold — 6.02:1, exactly as in the logo */
+  --brand-text: var(--gold-700); /* gold AS text on light — 5.54:1 */
+  --brand-soft: rgb(201 162 39 / 0.14);
+  --brand-ring: var(--gold-700);
 
-  --color-success: #22C55E;
-  --color-success-light: rgba(34, 197, 94, 0.15);
-  --color-warning: #FBBF24;
-  --color-warning-light: rgba(251, 191, 36, 0.15);
-  --color-error: #F87171;
-  --color-error-light: rgba(248, 113, 113, 0.15);
+  --success: var(--green-700);
+  --success-text: var(--green-700);
+  --success-soft: rgb(15 122 84 / 0.1);
+  --danger: var(--red-700);
+  --danger-text: var(--red-700);
+  --danger-soft: rgb(192 52 31 / 0.08);
+  --warning-text: var(--orange-700);
+  --warning-soft: rgb(154 91 10 / 0.1);
 
-  --color-shadow-sm: rgba(0, 0, 0, 0.2);
-  --color-shadow-md: rgba(0, 0, 0, 0.3);
-  --color-shadow-lg: rgba(0, 0, 0, 0.4);
-  --color-shadow-xl: rgba(0, 0, 0, 0.5);
-
-  --color-navbar-bg-transparent: transparent;
-  --color-navbar-bg-scrolled: #14032E;
-  --color-navbar-border-scrolled: #2D1B4E;
-
-  --color-footer-bg: #080014;
-  --color-footer-text: #9CA3AF;
-  --color-footer-text-secondary: #6B7280;
-  --color-footer-border: #1A0A36;
-
-  --color-hero-bg: #080014;
-  --color-hero-text: #FFFFFF;
-  --color-hero-text-muted: rgba(255, 255, 255, 0.6);
-  --color-hero-border: rgba(255, 255, 255, 0.08);
-
-  --color-card-bg: #14032E;
-  --color-card-bg-hover: #1A0A36;
-  --color-card-border: #2D1B4E;
-  --color-card-shadow: rgba(0, 0, 0, 0.3);
-
-  --color-input-bg: #14032E;
-  --color-input-border: #2D1B4E;
-  --color-input-focus-border: #07CCFD;
-  --color-input-placeholder: #6B7280;
-
-  --color-modal-overlay: rgba(0, 0, 0, 0.7);
-  --color-modal-bg: #14032E;
+  --shadow-color: 215 45% 14%;
+  color-scheme: light;
 }
 
-/* ─── System preference fallback ─── */
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    --color-bg-primary: #0E0024;
-    --color-bg-secondary: #14032E;
-    --color-bg-tertiary: #1A0A36;
-    --color-bg-elevated: #1E1040;
-    --color-bg-overlay: rgba(20, 3, 46, 0.95);
+/* ───────────────────────────────────────────────────────────────────
+   3. SEMANTIC TOKENS — dark
+   ─────────────────────────────────────────────────────────────────── */
+[data-theme='dark'] {
+  --canvas: var(--navy-900);
+  --surface: var(--navy-800);
+  --surface-2: var(--navy-700);
+  --surface-inset: #071426;
 
-    --color-text-primary: #F9FAFB;
-    --color-text-secondary: #D1D5DB;
-    --color-text-tertiary: #9CA3AF;
-    --color-text-inverse: #111827;
-    --color-text-muted: #9CA3AF;
+  --fg: #f2f6fb;
+  --fg-muted: #c3cfe0; /* 9.24:1 on --surface */
+  --fg-subtle: #93a5bf; /* 5.81:1 on --surface, 4.95:1 on --surface-2 */
+  --fg-inverse: var(--navy-800);
 
-    --color-border-primary: #2D1B4E;
-    --color-border-secondary: #3D2A5E;
-    --color-border-focus: #07CCFD;
-    --color-border-subtle: #251540;
+  --line: var(--navy-600);
+  --line-strong: var(--navy-500);
 
-    --color-brand-primary: #07CCFD;
-    --color-brand-primary-hover: #06B8E4;
-    --color-brand-primary-light: rgba(7, 204, 253, 0.15);
-    --color-brand-primary-glow: rgba(7, 204, 253, 0.4);
-    --color-brand-secondary: #F86BCF;
-    --color-brand-secondary-hover: #E855BF;
-    --color-brand-secondary-light: rgba(248, 107, 207, 0.15);
-    --color-brand-accent: #FFCD00;
-    --color-brand-accent-hover: #E6B800;
-    --color-brand-accent-light: rgba(255, 205, 0, 0.15);
-    --color-brand-purple: #A855F7;
-    --color-brand-purple-hover: #9333EA;
-    --color-brand-purple-light: rgba(168, 85, 247, 0.15);
+  --brand: var(--gold-500);
+  --brand-hover: var(--gold-400);
+  --brand-fg: var(--navy-900);
+  --brand-text: var(--gold-400); /* 7.03:1 on --surface */
+  --brand-soft: rgb(201 162 39 / 0.16);
+  --brand-ring: var(--gold-400);
 
-    --color-success: #22C55E;
-    --color-success-light: rgba(34, 197, 94, 0.15);
-    --color-warning: #FBBF24;
-    --color-warning-light: rgba(251, 191, 36, 0.15);
-    --color-error: #F87171;
-    --color-error-light: rgba(248, 113, 113, 0.15);
+  --success: var(--green-500);
+  --success-text: var(--green-500); /* 7.58:1 */
+  --success-soft: rgb(52 211 153 / 0.16);
+  --danger: var(--red-400);
+  --danger-text: var(--red-400); /* 7.67:1 */
+  --danger-soft: rgb(252 165 165 / 0.14);
+  --warning-text: var(--orange-400);
+  --warning-soft: rgb(251 146 60 / 0.16);
 
-    --color-shadow-sm: rgba(0, 0, 0, 0.2);
-    --color-shadow-md: rgba(0, 0, 0, 0.3);
-    --color-shadow-lg: rgba(0, 0, 0, 0.4);
-    --color-shadow-xl: rgba(0, 0, 0, 0.5);
-
-    --color-navbar-bg-transparent: transparent;
-    --color-navbar-bg-scrolled: #14032E;
-    --color-navbar-border-scrolled: #2D1B4E;
-
-    --color-footer-bg: #080014;
-    --color-footer-text: #9CA3AF;
-    --color-footer-text-secondary: #6B7280;
-    --color-footer-border: #1A0A36;
-
-    --color-hero-bg: #080014;
-    --color-hero-text: #FFFFFF;
-    --color-hero-text-muted: rgba(255, 255, 255, 0.6);
-    --color-hero-border: rgba(255, 255, 255, 0.08);
-
-    --color-card-bg: #14032E;
-    --color-card-bg-hover: #1A0A36;
-    --color-card-border: #2D1B4E;
-    --color-card-shadow: rgba(0, 0, 0, 0.3);
-
-    --color-input-bg: #14032E;
-    --color-input-border: #2D1B4E;
-    --color-input-focus-border: #07CCFD;
-    --color-input-placeholder: #6B7280;
-
-    --color-modal-overlay: rgba(0, 0, 0, 0.7);
-    --color-modal-bg: #14032E;
-  }
+  --shadow-color: 215 60% 3%;
+  color-scheme: dark;
 }
 
+/* ───────────────────────────────────────────────────────────────────
+   4. TAILWIND THEME BRIDGE
+   `inline` keeps the var() reference live so [data-theme] switching works.
+   ─────────────────────────────────────────────────────────────────── */
+@theme inline {
+  --color-canvas: var(--canvas);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-surface-inset: var(--surface-inset);
+
+  --color-fg: var(--fg);
+  --color-fg-muted: var(--fg-muted);
+  --color-fg-subtle: var(--fg-subtle);
+  --color-fg-inverse: var(--fg-inverse);
+
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+
+  --color-brand: var(--brand);
+  --color-brand-hover: var(--brand-hover);
+  --color-brand-fg: var(--brand-fg);
+  --color-brand-text: var(--brand-text);
+  --color-brand-soft: var(--brand-soft);
+
+  --color-success: var(--success);
+  --color-success-text: var(--success-text);
+  --color-success-soft: var(--success-soft);
+  --color-danger: var(--danger);
+  --color-danger-text: var(--danger-text);
+  --color-danger-soft: var(--danger-soft);
+  --color-warning-text: var(--warning-text);
+  --color-warning-soft: var(--warning-soft);
+
+  /* Fixed marketing surfaces (never themed) — the logo's own navy */
+  --color-ink: var(--navy-800);
+  --color-ink-deep: var(--navy-900);
+  --color-ink-raised: var(--navy-700);
+  --color-gold: var(--gold-500);
+  --color-gold-bright: var(--gold-300);
+
+  --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-serif: 'Fraunces', Georgia, 'Times New Roman', serif;
+  --font-ethiopic: 'Noto Sans Ethiopic', 'Plus Jakarta Sans', system-ui, sans-serif;
+
+  --radius-card: 20px;
+  --radius-control: 12px;
+}
+
+/* ───────────────────────────────────────────────────────────────────
+   5. BASE
+   ─────────────────────────────────────────────────────────────────── */
 @layer base {
   html {
     -webkit-text-size-adjust: 100%;
-    text-size-adjust: 100%;
+    scroll-behavior: smooth;
+    scroll-padding-top: calc(var(--nav-h) + 1rem);
   }
 
-  html, body, #root {
+  html,
+  body,
+  #root {
     max-width: 100%;
-    overflow-x: hidden;
+    overflow-x: clip;
   }
 
   body {
     font-family: var(--font-sans);
-    background-color: var(--color-bg-primary);
-    color: var(--color-text-primary);
-    overflow-x: hidden;
-    transition: background-color 0.3s ease, color 0.3s ease;
+    background-color: var(--canvas);
+    color: var(--fg);
+    -webkit-font-smoothing: antialiased;
   }
 
-  h1, h2, h3, .font-display {
-    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  /* Amharic: switch the family, relax leading for Ethiopic ascenders. */
+  html[lang='am'] body {
+    font-family: var(--font-ethiopic);
   }
-
-  /* 🇪🇹 Amharic font when lang="am" */
-  html[lang="am"] body,
-  html[lang="am"] {
-    font-family: var(--font-amharic);
+  html[lang='am'] :is(h1, h2, h3, h4, h5, h6, p, li, button, a, label, input, textarea) {
+    font-family: var(--font-ethiopic);
+    line-height: 1.6;
   }
-
-  html[lang="am"] * {
-    font-family: var(--font-amharic);
-  }
-
-  html[lang="am"] .keep-latin,
-  html[lang="am"] .font-mono,
-  html[lang="am"] code,
-  html[lang="am"] pre {
+  /* Numerals, code and prices stay Latin even in Amharic. */
+  html[lang='am'] .keep-latin,
+  html[lang='am'] code,
+  html[lang='am'] pre {
     font-family: var(--font-sans) !important;
   }
 
-  html[lang="am"] .font-serif-editorial {
-    font-family: var(--font-serif) !important;
+  /* One visible, accessible focus ring for the whole app. */
+  :focus-visible {
+    outline: 2px solid var(--brand-ring);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+  :focus:not(:focus-visible) {
+    outline: none;
   }
 
-  html[lang="am"] p,
-  html[lang="am"] h1,
-  html[lang="am"] h2,
-  html[lang="am"] h3,
-  html[lang="am"] h4,
-  html[lang="am"] h5,
-  html[lang="am"] h6 {
-    line-height: 1.55;
+  ::selection {
+    background-color: var(--brand);
+    color: var(--brand-fg);
   }
 
-  /* Smooth theme transition for all elements */
-  *,
-  *::before,
-  *::after {
-    transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
-  }
-
-  /* Disable transitions during theme switch to prevent flash */
-  .theme-transitioning *,
-  .theme-transitioning *::before,
-  .theme-transitioning *::after {
-    transition: none !important;
+  /* Theme transition is opt-in and short-lived — never a global `*` rule.
+     ThemeProvider adds this class for one frame while swapping themes. */
+  .theme-switching,
+  .theme-switching *,
+  .theme-switching *::before,
+  .theme-switching *::after {
+    transition:
+      background-color var(--dur-base) ease,
+      border-color var(--dur-base) ease,
+      color var(--dur-base) ease !important;
   }
 }
 
-.font-serif-editorial {
-  font-family: var(--font-serif);
+/* ───────────────────────────────────────────────────────────────────
+   6. UTILITIES
+   ─────────────────────────────────────────────────────────────────── */
+@utility marketing-glass {
+  background-color: rgb(255 255 255 / 0.05);
+  border: 1px solid rgb(255 255 255 / 0.1);
+  backdrop-filter: blur(16px);
 }
 
-.font-sans-ui {
-  font-family: var(--font-sans);
-}
-
-.font-amharic {
-  font-family: var(--font-amharic);
-}
-
-/* Scrollbar */
-::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
-}
-::-webkit-scrollbar-track {
-  background: var(--color-bg-tertiary);
-}
-::-webkit-scrollbar-thumb {
-  background: var(--color-border-secondary);
-  border-radius: 4px;
-}
-::-webkit-scrollbar-thumb:hover {
-  background: var(--color-text-tertiary);
-}
-
-.hide-scrollbar {
+@utility hide-scrollbar {
   -ms-overflow-style: none;
   scrollbar-width: none;
-}
-.hide-scrollbar::-webkit-scrollbar {
-  display: none;
-}
-
-.custom-scrollbar::-webkit-scrollbar {
-  width: 6px;
-}
-.custom-scrollbar::-webkit-scrollbar-track {
-  background: transparent;
-}
-.custom-scrollbar::-webkit-scrollbar-thumb {
-  background: rgba(148, 163, 184, 0.3);
-  border-radius: 3px;
+  &::-webkit-scrollbar {
+    display: none;
+  }
 }
 
-/* 📱 Mobile */
-.min-h-screen {
+.dvh-screen {
   min-height: 100vh;
   min-height: 100dvh;
 }
-.h-screen {
+.h-dvh-screen {
   height: 100vh;
   height: 100dvh;
 }
-
 .safe-bottom {
   padding-bottom: max(1rem, env(safe-area-inset-bottom));
 }
@@ -374,116 +296,114 @@
   padding-top: env(safe-area-inset-top);
 }
 
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: var(--line-strong);
+  border-radius: 3px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* Prevent iOS auto-zoom on focus without disabling pinch-zoom. */
 @media (max-width: 640px) {
   input,
   select,
   textarea {
-    font-size: 16px !important;
-  }
-  button,
-  a,
-  [role="button"] {
-    min-height: 40px;
-  }
-  button.chip,
-  a.chip,
-  .no-min-touch {
-    min-height: 0;
+    font-size: 16px;
   }
 }
 
-.player-lock {
-  height: 100vh;
-  height: 100dvh;
-  overflow: hidden;
-}
-
-.certificate-scroll {
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
-}
-
-* {
-  -webkit-tap-highlight-color: transparent;
-}
-
-/* Animations */
+/* ───────────────────────────────────────────────────────────────────
+   7. MOTION
+   ─────────────────────────────────────────────────────────────────── */
 @keyframes marquee {
-  0% { transform: translateX(0%); }
-  100% { transform: translateX(-50%); }
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
 }
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+}
+@keyframes slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+}
+@keyframes scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+}
+@keyframes shimmer {
+  to {
+    background-position: -200% 0;
+  }
+}
+
 .animate-marquee {
-  animation: marquee 25s linear infinite;
+  animation: marquee 40s linear infinite;
 }
-.animate-marquee:hover {
+.animate-marquee[data-paused='true'] {
   animation-play-state: paused;
 }
-
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+.animate-fade-in {
+  animation: fade-in var(--dur-base) ease-out both;
 }
-.animate-fadeIn {
-  animation: fadeIn 0.3s ease-in-out;
+.animate-slide-up {
+  animation: slide-up var(--dur-slow) var(--ease-out-quart) both;
 }
-
-@keyframes slideUp {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-.animate-slideUp {
-  animation: slideUp 0.4s ease-out;
+.animate-scale-in {
+  animation: scale-in var(--dur-base) var(--ease-out-quart) both;
 }
 
-@keyframes slideDown {
-  from { opacity: 0; transform: translateY(-20px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-.animate-slideDown {
-  animation: slideDown 0.3s ease-out;
+.skeleton {
+  background: linear-gradient(90deg, var(--surface-2) 25%, var(--line) 50%, var(--surface-2) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.4s linear infinite;
 }
 
-/* Theme toggle button styles */
-.theme-toggle {
-  @apply relative p-2 rounded-xl transition-all;
-}
-.theme-toggle .sun-icon {
-  @apply transition-opacity duration-300;
-}
-.theme-toggle .moon-icon {
-  @apply absolute top-2 left-2 opacity-0 transition-opacity duration-300;
-}
-[data-theme="dark"] .theme-toggle .sun-icon {
-  @apply opacity-0;
-}
-[data-theme="dark"] .theme-toggle .moon-icon {
-  @apply opacity-100;
-}
-[data-theme="light"] .theme-toggle .sun-icon {
-  @apply opacity-100;
-}
-[data-theme="light"] .theme-toggle .moon-icon {
-  @apply opacity-0;
+/* Honour the OS setting. Non-negotiable. */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }
 
-/* Focus visible styles */
-:focus-visible {
-  outline: 2px solid var(--color-brand-primary);
-  outline-offset: 2px;
-}
-
-/* Selection */
-::selection {
-  background-color: var(--color-brand-primary-light);
-  color: var(--color-brand-primary);
-}
-
+/* ───────────────────────────────────────────────────────────────────
+   8. PRINT — the certificate is the only thing worth printing
+   ─────────────────────────────────────────────────────────────────── */
 @media print {
-  nav, footer, .no-print {
+  .no-print {
     display: none !important;
   }
   body {
-    background: white !important;
-    color: black !important;
+    background: #fff !important;
+    color: #000 !important;
+  }
+  .print-sheet {
+    box-shadow: none !important;
+    border: none !important;
+  }
+  @page {
+    size: A4 landscape;
+    margin: 12mm;
   }
 }

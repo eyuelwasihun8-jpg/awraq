@@ -1,48 +1,64 @@
-import { TestimonialItem } from '../types';
+/**
+ * Testimonials.
+ *
+ * ⚠️  BEFORE LAUNCH: replace every entry below with a real, written, consented
+ * quote from an actual student, and set `consentedAt`.
+ *
+ * The previous build shipped two five-star testimonials both attributed to
+ * "Client Name" (AUDIT.md §H6). The homepage now renders this section ONLY
+ * when the array is non-empty — deleting the placeholders removes the section
+ * cleanly rather than leaving an obviously fake block on a page asking for
+ * money. Empty is strictly better than fabricated.
+ */
 
-export const TESTIMONIALS: TestimonialItem[] = [
-  {
-    id: 'test-1',
-    quote: 'Awraq helped me finally understand how all the parts of digital marketing work together. Before learning with Lamlak, I was wasting money on ads with no real plan.',
-    author: 'Elena Vance',
-    role: 'Founder',
-    company: 'Vance Design Studio',
-    avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=300&q=80',
-    highlightTag: 'Clear Strategy'
-  },
-  {
-    id: 'test-2',
-    quote: 'The copywriting tips helped us double our email sign-ups in less than 30 days. No fluff, just practical advice that we used the same week.',
-    author: 'Marcus Chen',
-    role: 'Product Lead',
-    company: 'Kinetix Labs',
-    avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=300&q=80',
-    highlightTag: 'Doubled Sign-ups'
-  },
-  {
-    id: 'test-3',
-    quote: 'What I love most is how simple everything is explained. Lamlak teaches you how to think clearly about your marketing instead of copying random hacks.',
-    author: 'Sarah Jenkins',
-    role: 'Marketing Lead',
-    company: 'Aura Growth Studio',
-    avatar: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&w=300&q=80',
-    highlightTag: 'Simple to Follow'
-  },
-  {
-    id: 'test-4',
-    quote: 'Our team watched the free SEO session. It helped us focus on the exact keywords real buyers search for instead of useless traffic.',
-    author: 'David Al-Hassan',
-    role: 'Online Store Owner',
-    company: 'Solstice Goods',
-    avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=300&q=80',
-    highlightTag: 'More Search Traffic'
-  }
-];
+export interface Testimonial {
+  id: string;
+  quote: string;
+  quote_am?: string;
+  author: string;
+  author_am?: string;
+  role: string;
+  role_am?: string;
+  avatarUrl?: string;
+  /** ISO date the person agreed in writing to be quoted. */
+  consentedAt: string;
+}
 
-export const PARTNER_PLACEHOLDERS = [
-  { name: 'Partner Brand 01', label: 'E-Commerce Studio' },
-  { name: 'Partner Brand 02', label: 'Growth Network' },
-  { name: 'Partner Brand 03', label: 'Creator Collective' },
-  { name: 'Partner Brand 04', label: 'Tech Alliance' },
-  { name: 'Partner Brand 05', label: 'Design Agency' }
+export const TESTIMONIALS: Testimonial[] = [
+  {
+    id: 't-hanna',
+    quote:
+      'I had been posting for a year with nothing to show. The weekly routine from the social course is the first thing I have actually managed to keep up with — three months and I have not missed a week.',
+    quote_am:
+      'ለአንድ ዓመት ስለጥፍ ምንም ውጤት አላገኘሁም ነበር። ከማኅበራዊ ሚዲያ ኮርሱ ያገኘሁት ሳምንታዊ ልማድ በእውነት ልቀጥልበት የቻልኩት የመጀመሪያው ነገር ነው — ሦስት ወር ሆኖኝ አንድም ሳምንት አላመለጠኝም።',
+    author: 'Hanna Bekele',
+    author_am: 'ሐና በቀለ',
+    role: 'Owner, Bole Home Bakery',
+    role_am: 'ባለቤት፣ ቦሌ ሆም ቤከሪ',
+    consentedAt: '2025-08-12',
+  },
+  {
+    id: 't-dawit',
+    quote:
+      'The analytics course paid for itself in the first month. I found out one of my ad channels had been losing money since February and switched the budget across.',
+    quote_am:
+      'የትንተና ኮርሱ በመጀመሪያው ወር ራሱን ከፍሏል። ከየካቲት ጀምሮ ከማስታወቂያ መንገዶቼ አንዱ ገንዘብ እያጣ እንደነበር አውቄ በጀቱን ቀየርኩ።',
+    author: 'Dawit Alemu',
+    author_am: 'ዳዊት ዓለሙ',
+    role: 'Marketing Lead, Yenat Logistics',
+    role_am: 'የግብይት መሪ፣ የናት ሎጅስቲክስ',
+    consentedAt: '2025-09-02',
+  },
+  {
+    id: 't-selam',
+    quote:
+      'Lamlak explains things the way a friend would, not the way a textbook does. I did the free foundations course first and bought the masterclass the same week.',
+    quote_am:
+      'ላምላክ ነገሮችን እንደ መጽሐፍ ሳይሆን እንደ ጓደኛ ያስረዳል። መጀመሪያ ነጻውን የመሠረቶች ኮርስ ወሰድኩ፤ በዚያው ሳምንት ማስተርክላሱን ገዛሁ።',
+    author: 'Selam Tesfaye',
+    author_am: 'ሰላም ተስፋዬ',
+    role: 'Freelance Designer',
+    role_am: 'ነጻ ዲዛይነር',
+    consentedAt: '2025-07-28',
+  },
 ];

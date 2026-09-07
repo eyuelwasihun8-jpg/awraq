@@ -6,3 +6,6 @@ coverage/
 *.log
 .env*
 !.env.example
+
+# Test harness build output
+tests/.build/

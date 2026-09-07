@@ -1,424 +1,663 @@
-import { Course, ResourceItem, BundleItem } from '../types';
+import type { Course } from '../types';
+import { DEFAULT_INSTRUCTOR } from './instructors';
+
+/**
+ * Course catalogue.
+ *
+ * Every lesson carries a real `videoUrl`. Where content isn't produced yet the
+ * value is `null` and the player renders an explicit "not published" state —
+ * the previous build had no video field at all and shipped a decorative play
+ * button that did nothing (AUDIT.md §C2).
+ *
+ * The sample sources below are Google's public test streams, standing in for
+ * the real CDN. In production these become short-lived signed HLS manifests.
+ */
+
+const SAMPLE = {
+  a: 'https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4',
+  b: 'https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4',
+  c: 'https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4',
+  d: 'https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerMeltdowns.mp4',
+} as const;
 
 export const COURSES: Course[] = [
   {
+    kind: 'course',
     id: 'masterclass',
-    title: 'Complete Digital Marketing Masterclass',
     slug: 'complete-digital-marketing-masterclass',
+    title: 'Complete Digital Marketing Masterclass',
+    title_am: 'ሙሉ የዲጂታል ግብይት ማስተርክላስ',
     category: 'Full Course',
-    price: 199.00,
-    originalPrice: 289.00,
-    currency: 'ETB',
+    category_am: 'ሙሉ ኮርስ',
+    summary:
+      'Strategy, content, SEO, email and analytics — the whole system, in one course.',
+    summary_am: 'ስትራቴጂ፣ ይዘት፣ SEO፣ ኢሜይል እና ትንተና — ሙሉው ሥርዓት በአንድ ኮርስ ውስጥ።',
+    description:
+      'This is the course to take if you want the complete picture. You will build a marketing plan for your own business as you go, module by module, and finish with a system you can run every month instead of a list of tactics you forget.',
+    description_am:
+      'ሙሉውን ምስል ማየት ከፈለጋችሁ የምትወስዱት ኮርስ ይህ ነው። እየተማራችሁ ለራሳችሁ ንግድ የግብይት ዕቅድ ትገነባላችሁ፤ ሞጁል በሞጁል፤ በመጨረሻም የምትረሱት የዘዴዎች ዝርዝር ሳይሆን በየወሩ የምታሠሩት ሥርዓት ይኖራችኋል።',
+    price: 199,
+    originalPrice: 289,
     duration: '14 hr 30 mins',
-    lessonsCount: 15, 
-    rating: 4.9,
-    reviewsCount: 384,
-    description: 'Learn the basics and advanced parts of digital marketing in one complete course. You will learn strategy, content, social media, SEO, email marketing, and analytics.',
-    instructor: {
-      name: 'Lamlak',
-      role: 'Founder & Teacher',
-      avatar: 'https://res.cloudinary.com/dw1ohipim/image/upload/v1788610521/zdd0btz0dhpdrl3qdekg.jpg',
-    },
-    thumbnail: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=800&q=80',
-    isPopular: true,
     level: 'All Levels',
+    thumbnail:
+      'https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=1200&q=75',
+    instructor: DEFAULT_INSTRUCTOR,
+    isPopular: true,
+    status: 'published',
+    publishedAt: '2025-02-11',
     highlights: [
-      'Step-by-step plan for your whole marketing strategy',
-      'Simple audit sheets and budget calculators',
-      'Real examples from successful businesses',
-      'Lifetime access with free future updates'
+      'A step-by-step plan for your entire marketing system',
+      'Audit sheets and a budget calculator you keep',
+      'Real examples from Ethiopian businesses',
+      'Lifetime access, including future updates',
+    ],
+    highlights_am: [
+      'ለሙሉ የግብይት ሥርዓታችሁ ደረጃ በደረጃ ዕቅድ',
+      'የምትይዟቸው የኦዲት ሉሆች እና የበጀት ማስያ',
+      'ከኢትዮጵያ ንግዶች የተወሰዱ ተጨባጭ ምሳሌዎች',
+      'የዕድሜ ልክ ተደራሽነት፤ የወደፊት ዝማኔዎችን ጨምሮ',
+    ],
+    outcomes: [
+      'Write a one-page marketing plan for your business',
+      'Choose the right channel for your budget instead of trying all of them',
+      'Read your own numbers and know what to change next',
+      'Build a content routine you can actually keep up with',
+    ],
+    outcomes_am: [
+      'ለንግዳችሁ የአንድ ገጽ የግብይት ዕቅድ መጻፍ',
+      'ሁሉንም ከመሞከር ይልቅ ለበጀታችሁ ትክክለኛውን መንገድ መምረጥ',
+      'የራሳችሁን ቁጥሮች አንብቦ ቀጥሎ ምን መቀየር እንዳለበት ማወቅ',
+      'በእውነት ልትቀጥሉበት የምትችሉት የይዘት ልማድ መገንባት',
+    ],
+    requirements: [
+      'No marketing background needed',
+      'A business, side project or personal brand to practise on',
+    ],
+    requirements_am: [
+      'ምንም የግብይት ልምድ አያስፈልግም',
+      'ልትለማመዱበት የምትችሉት ንግድ፣ ተጓዳኝ ፕሮጀክት ወይም የግል ብራንድ',
     ],
     modules: [
       {
         id: 'mc-m1',
-        title: 'Module 01: Strategy & Finding Your Audience',
-        description: 'Learn who your buyers are and what makes your offer special.',
+        title: 'Strategy & Finding Your Audience',
+        title_am: 'ስትራቴጂ እና ታዳሚዎችን ማግኘት',
+        description: 'Work out who actually buys from you, and what makes your offer different.',
+        description_am: 'በእውነት ከእናንተ የሚገዛው ማን እንደሆነ እና አቅርቦታችሁን የተለየ የሚያደርገው ምን እንደሆነ ይወስኑ።',
         lessons: [
-          { id: 'mc-m1-l1', title: 'Understand Your Customer', type: 'video', duration: '12:45' },
-          { id: 'mc-m1-l2', title: 'Creating Your Core Offer', type: 'video', duration: '18:20' },
-          { id: 'mc-m1-l3', title: 'Mapping How People Buy', type: 'video', duration: '14:10' }
-        ]
+          {
+            id: 'mc-m1-l1',
+            title: 'Understand Your Customer',
+            title_am: 'ደንበኛችሁን ይረዱ',
+            type: 'video',
+            duration: '12:45',
+            videoUrl: SAMPLE.a,
+            isPreview: true,
+            description:
+              'Most marketing fails because it talks to everyone. In this lesson you narrow down to the one person worth talking to.',
+            description_am:
+              'አብዛኛው ግብይት የሚከሽፈው ለሁሉም ሰው ስለሚናገር ነው። በዚህ ትምህርት ማነጋገር ወደሚገባው አንድ ሰው ትጠባላችሁ።',
+          },
+          {
+            id: 'mc-m1-l2',
+            title: 'Creating Your Core Offer',
+            title_am: 'ዋና አቅርቦታችሁን መፍጠር',
+            type: 'video',
+            duration: '18:20',
+            videoUrl: SAMPLE.b,
+          },
+          {
+            id: 'mc-m1-l3',
+            title: 'Mapping How People Buy',
+            title_am: 'ሰዎች እንዴት እንደሚገዙ መሳል',
+            type: 'reading',
+            duration: '08:00',
+            videoUrl: null,
+            body: 'Nobody buys on first contact. This reading walks through the five stages a customer moves through — unaware, aware, considering, deciding, buying — and what your job is at each one.\n\nWrite down, for your own business, one thing you could publish for each stage. That list is your content plan for the next month.',
+            body_am:
+              'ማንም በመጀመሪያ ንክኪ አይገዛም። ይህ ንባብ ደንበኛ የሚያልፍባቸውን አምስት ደረጃዎች — ያለማወቅ፣ ማወቅ፣ ማሰብ፣ መወሰን፣ መግዛት — እና በእያንዳንዱ ላይ ሥራችሁ ምን እንደሆነ ያብራራል።\n\nለራሳችሁ ንግድ ለእያንዳንዱ ደረጃ ልታሳትሙት የምትችሉትን አንድ ነገር ጻፉ። ያ ዝርዝር ለሚቀጥለው ወር የይዘት ዕቅዳችሁ ነው።',
+          },
+        ],
       },
       {
         id: 'mc-m2',
-        title: 'Module 02: Clear Copywriting & Content',
-        description: 'Write simple messages that help people take action.',
+        title: 'Clear Copywriting & Content',
+        title_am: 'ግልጽ ጽሑፍ እና ይዘት',
+        description: 'Write simple messages that move people to act.',
+        description_am: 'ሰዎችን ወደ ተግባር የሚያንቀሳቅሱ ቀላል መልእክቶችን ይጻፉ።',
         lessons: [
-          { id: 'mc-m2-l1', title: 'How to Write Clear Sentences', type: 'video', duration: '16:05' },
-          { id: 'mc-m2-l2', title: 'Hooking Attention on Social Media', type: 'video', duration: '11:30' },
-          { id: 'mc-m2-l3', title: 'Simple Stories That Sell', type: 'reading', duration: '08:00' }
-        ]
+          {
+            id: 'mc-m2-l1',
+            title: 'How to Write Clear Sentences',
+            title_am: 'ግልጽ ዓረፍተ ነገሮችን እንዴት መጻፍ እንደሚቻል',
+            type: 'video',
+            duration: '16:05',
+            videoUrl: SAMPLE.c,
+          },
+          {
+            id: 'mc-m2-l2',
+            title: 'Hooking Attention on Social Media',
+            title_am: 'በማኅበራዊ ሚዲያ ትኩረት መሳብ',
+            type: 'video',
+            duration: '11:30',
+            videoUrl: SAMPLE.d,
+          },
+        ],
       },
       {
         id: 'mc-m3',
-        title: 'Module 03: Getting Traffic (SEO & Social)',
-        description: 'Get found on Google and build an audience on social media.',
+        title: 'Getting Traffic — SEO & Social',
+        title_am: 'ጎብኚ ማምጣት — SEO እና ማኅበራዊ ሚዲያ',
         lessons: [
-          { id: 'mc-m3-l1', title: 'Finding Keywords on Google', type: 'video', duration: '22:15' },
-          { id: 'mc-m3-l2', title: 'How to Share Content Consistently', type: 'video', duration: '15:40' },
-          { id: 'mc-m3-l3', title: 'Turning One Idea Into Five Posts', type: 'video', duration: '19:00' }
-        ]
+          {
+            id: 'mc-m3-l1',
+            title: 'Finding Keywords on Google',
+            title_am: 'በGoogle ላይ ቁልፍ ቃላትን ማግኘት',
+            type: 'video',
+            duration: '22:15',
+            videoUrl: SAMPLE.a,
+          },
+          {
+            id: 'mc-m3-l2',
+            title: 'Turning One Idea Into Five Posts',
+            title_am: 'አንድ ሐሳብን ወደ አምስት ጽሑፎች መቀየር',
+            type: 'video',
+            duration: '19:00',
+            videoUrl: SAMPLE.b,
+          },
+        ],
       },
       {
         id: 'mc-m4',
-        title: 'Module 04: Email Marketing & Follow-Up',
-        description: 'Send helpful emails that turn readers into happy buyers.',
+        title: 'Email Marketing & Follow-Up',
+        title_am: 'የኢሜይል ግብይት እና ክትትል',
         lessons: [
-          { id: 'mc-m4-l1', title: 'Your 5-Day Welcome Email Sequence', type: 'video', duration: '17:50' },
-          { id: 'mc-m4-l2', title: 'How to Group Your Email List', type: 'video', duration: '13:25' },
-          { id: 'mc-m4-l3', title: 'Automating Helpful Emails', type: 'reading', duration: '10:00' }
-        ]
+          {
+            id: 'mc-m4-l1',
+            title: 'Your 5-Day Welcome Sequence',
+            title_am: 'የ5 ቀን የእንኳን ደህና መጣችሁ ተከታታይ ኢሜይል',
+            type: 'video',
+            duration: '17:50',
+            videoUrl: SAMPLE.c,
+          },
+          {
+            id: 'mc-m4-l2',
+            title: 'How to Group Your Email List',
+            title_am: 'የኢሜይል ዝርዝራችሁን እንዴት መከፋፈል እንደሚቻል',
+            type: 'video',
+            duration: '13:25',
+            videoUrl: SAMPLE.d,
+          },
+        ],
       },
       {
         id: 'mc-m5',
-        title: 'Module 05: Analytics & Improving Results',
-        description: 'See what works, what to fix, and how to improve your numbers.',
+        title: 'Analytics & Improving Results',
+        title_am: 'ትንተና እና ውጤትን ማሻሻል',
         lessons: [
-          { id: 'mc-m5-l1', title: 'Reading Your Website Numbers Easily', type: 'video', duration: '21:10' },
-          { id: 'mc-m5-l2', title: 'Checklist to Fix Slow Sales', type: 'resource', duration: '05:00' },
-          { id: 'mc-m5-l3', title: 'Testing Simple Changes', type: 'video', duration: '14:45' }
-        ]
-      }
-    ]
+          {
+            id: 'mc-m5-l1',
+            title: 'Reading Your Website Numbers',
+            title_am: 'የድረ-ገጻችሁን ቁጥሮች ማንበብ',
+            type: 'video',
+            duration: '21:10',
+            videoUrl: SAMPLE.a,
+          },
+          {
+            id: 'mc-m5-l2',
+            title: 'Testing Simple Changes',
+            title_am: 'ቀላል ለውጦችን መሞከር',
+            type: 'video',
+            duration: '14:45',
+            videoUrl: SAMPLE.b,
+          },
+        ],
+      },
+    ],
   },
+
   {
+    kind: 'course',
     id: 'copywriting',
-    title: 'Copywriting for Conversion',
-    slug: 'copywriting-for-conversion',
+    slug: 'copywriting-that-sells',
+    title: 'Copywriting That Sells',
+    title_am: 'የሚሸጥ ጽሑፍ አጻጻፍ',
     category: 'Copywriting',
-    price: 149.00,
-    originalPrice: 199.00,
-    currency: 'ETB',
-    duration: '06 hr 45 mins',
-    lessonsCount: 9, 
-    rating: 4.8,
-    reviewsCount: 219,
-    description: 'Learn how to write clear, persuasive words that grab attention and turn readers into customers.',
-    instructor: {
-      name: 'Lamlak',
-      role: 'Founder & Teacher',
-      avatar: 'https://res.cloudinary.com/dw1ohipim/image/upload/v1788610521/zdd0btz0dhpdrl3qdekg.jpg',
-    },
-    thumbnail: 'https://images.unsplash.com/photo-1455390582262-044cdead277a?auto=format&fit=crop&w=800&q=80',
-    level: 'All Levels',
+    category_am: 'ጽሑፍ አጻጻፍ',
+    summary: 'Write product pages, ads and emails people actually respond to.',
+    summary_am: 'ሰዎች በእውነት ምላሽ የሚሰጡባቸውን የምርት ገጾች፣ ማስታወቂያዎች እና ኢሜይሎች ይጻፉ።',
+    description:
+      'A short, practical course on writing that gets a response. You rewrite your own homepage, one ad and one email during the course, and leave with templates you can reuse.',
+    description_am:
+      'ምላሽ የሚያገኝ አጻጻፍ ላይ ያተኮረ አጭር እና ተግባራዊ ኮርስ። በኮርሱ ወቅት የራሳችሁን መነሻ ገጽ፣ አንድ ማስታወቂያ እና አንድ ኢሜይል ትጽፋላችሁ፤ እንደገና ልትጠቀሙባቸው የምትችሉ አብነቶችንም ይዛችሁ ትወጣላችሁ።',
+    price: 149,
+    originalPrice: 199,
+    duration: '5 hr 10 mins',
+    level: 'Beginner',
+    thumbnail:
+      'https://images.unsplash.com/photo-1455390582262-044cdead277a?auto=format&fit=crop&w=1200&q=75',
+    instructor: DEFAULT_INSTRUCTOR,
+    status: 'published',
+    publishedAt: '2025-05-02',
     highlights: [
-      '20+ simple headline formulas that work',
-      'A clear layout for landing pages',
-      'How to answer buyer questions and build trust'
+      'A headline formula you can apply in minutes',
+      'Before/after rewrites of real Ethiopian business pages',
+      '12 reusable templates for ads, emails and product pages',
+    ],
+    highlights_am: [
+      'በደቂቃዎች ውስጥ ተግባራዊ የምታደርጉት የርዕስ ቀመር',
+      'የእውነተኛ የኢትዮጵያ ንግድ ገጾች ከመስተካከል በፊት እና በኋላ',
+      'ለማስታወቂያ፣ ኢሜይል እና የምርት ገጾች 12 እንደገና የሚያገለግሉ አብነቶች',
+    ],
+    outcomes: [
+      'Write a headline that says what you do in one line',
+      'Turn a feature list into reasons someone should care',
+      'Edit your own writing down to half the words',
+    ],
+    outcomes_am: [
+      'የምታደርጉትን በአንድ መስመር የሚገልጽ ርዕስ መጻፍ',
+      'የባህሪያት ዝርዝርን ሰው ሊያስብበት ወደሚገባ ምክንያት መቀየር',
+      'የራሳችሁን ጽሑፍ ወደ ግማሽ ቃላት ማሳጠር',
     ],
     modules: [
       {
         id: 'cw-m1',
-        title: 'Module 01: Understanding Your Reader',
-        description: 'Learn what people want and how they make choices.',
+        title: 'The Foundations',
+        title_am: 'መሠረቶቹ',
         lessons: [
-          { id: 'cw-m1-l1', title: 'Grabbing Attention Fast', type: 'video', duration: '14:20' },
-          { id: 'cw-m1-l2', title: 'Feelings vs Logic in Buying', type: 'video', duration: '16:15' },
-          { id: 'cw-m1-l3', title: 'Removing Customer Doubts', type: 'video', duration: '12:50' }
-        ]
+          {
+            id: 'cw-m1-l1',
+            title: 'What Copywriting Actually Is',
+            title_am: 'ጽሑፍ አጻጻፍ በእውነት ምንድን ነው',
+            type: 'video',
+            duration: '09:30',
+            videoUrl: SAMPLE.a,
+            isPreview: true,
+          },
+          {
+            id: 'cw-m1-l2',
+            title: 'Features vs. Reasons to Care',
+            title_am: 'ባህሪያት እና የሚያሳስቡ ምክንያቶች',
+            type: 'video',
+            duration: '14:20',
+            videoUrl: SAMPLE.b,
+          },
+        ],
       },
       {
         id: 'cw-m2',
-        title: 'Module 02: Writing Great Sales Pages',
-        description: 'How to write a simple, high-converting sales page.',
+        title: 'Headlines & Hooks',
+        title_am: 'ርዕሶች እና መሳቢያዎች',
         lessons: [
-          { id: 'cw-m2-l1', title: 'Writing the Top Headline', type: 'video', duration: '19:30' },
-          { id: 'cw-m2-l2', title: 'Showing Real Proof and Reviews', type: 'video', duration: '11:45' },
-          { id: 'cw-m2-l3', title: 'Writing Clear Call-to-Action Buttons', type: 'reading', duration: '07:00' }
-        ]
+          {
+            id: 'cw-m2-l1',
+            title: 'Six Headline Patterns',
+            title_am: 'ስድስት የርዕስ ዘይቤዎች',
+            type: 'video',
+            duration: '17:40',
+            videoUrl: SAMPLE.c,
+          },
+          {
+            id: 'cw-m2-l2',
+            title: 'Rewriting a Real Homepage',
+            title_am: 'እውነተኛ መነሻ ገጽን እንደገና መጻፍ',
+            type: 'video',
+            duration: '21:15',
+            videoUrl: SAMPLE.d,
+          },
+        ],
       },
-      {
-        id: 'cw-m3',
-        title: 'Module 03: Short Copy & Email Subject Lines',
-        description: 'Write short email subject lines and buttons people click.',
-        lessons: [
-          { id: 'cw-m3-l1', title: 'Curiosity and Clear Words', type: 'video', duration: '15:10' },
-          { id: 'cw-m3-l2', title: 'Button Text That Gets Clicks', type: 'video', duration: '10:25' },
-          { id: 'cw-m3-l3', title: 'Subject Lines People Open', type: 'resource', duration: '05:00' }
-        ]
-      }
-    ]
+    ],
   },
+
   {
-    id: 'social-media',
-    title: 'Social Media Growth Blueprint',
-    slug: 'social-media-growth-blueprint',
+    kind: 'course',
+    id: 'social-growth',
+    slug: 'social-media-growth-system',
+    title: 'Social Media Growth System',
+    title_am: 'የማኅበራዊ ሚዲያ ዕድገት ሥርዓት',
     category: 'Social Media',
-    price: 129.00,
-    originalPrice: 179.00,
-    currency: 'ETB',
-    duration: '07 hr 15 mins',
-    lessonsCount: 9, 
-    rating: 4.8,
-    reviewsCount: 174,
-    description: 'Learn how to build a consistent social media strategy, create engaging content, understand your audience, and improve growth.',
-    instructor: {
-      name: 'Lamlak',
-      role: 'Founder & Teacher',
-      avatar: 'https://res.cloudinary.com/dw1ohipim/image/upload/v1788610521/zdd0btz0dhpdrl3qdekg.jpg',
-    },
-    thumbnail: 'https://res.cloudinary.com/dw1ohipim/image/upload/v1788623685/iepszmduc1voktlnjflg.jpg',
+    category_am: 'ማኅበራዊ ሚዲያ',
+    summary: 'A repeatable weekly routine for Instagram, TikTok and Telegram.',
+    summary_am: 'ለInstagram፣ TikTok እና ቴሌግራም የሚደጋገም ሳምንታዊ ልማድ።',
+    description:
+      'Built for people who post inconsistently and burn out. You leave with a weekly routine that takes about three hours and a 30-day content calendar already filled in.',
+    description_am:
+      'በተቆራረጠ መንገድ ለሚለጥፉ እና ለሚደክሙ ሰዎች የተሠራ። ወደ ሦስት ሰዓት የሚወስድ ሳምንታዊ ልማድ እና አስቀድሞ የተሞላ የ30 ቀን የይዘት የቀን መቁጠሪያ ይዛችሁ ትወጣላችሁ።',
+    price: 129,
+    duration: '6 hr 45 mins',
     level: 'Beginner',
+    thumbnail:
+      'https://images.unsplash.com/photo-1611162617474-5b21e879e113?auto=format&fit=crop&w=1200&q=75',
+    instructor: DEFAULT_INSTRUCTOR,
+    status: 'published',
+    publishedAt: '2025-06-18',
     highlights: [
-      'How to grow on social media without burning out',
-      'A simple 3-hour weekly posting plan',
-      'How to start friendly chats that turn into sales'
+      'A three-hour weekly routine that covers all platforms',
+      'A 30-day calendar filled in for you',
+      'How to repurpose one video into a week of posts',
+    ],
+    highlights_am: [
+      'ሁሉንም መድረኮች የሚሸፍን የሦስት ሰዓት ሳምንታዊ ልማድ',
+      'ለእናንተ የተሞላ የ30 ቀን የቀን መቁጠሪያ',
+      'አንድ ቪዲዮን ወደ አንድ ሳምንት ልጥፎች እንዴት መቀየር እንደሚቻል',
+    ],
+    outcomes: [
+      'Publish consistently without spending every evening on it',
+      'Know which numbers matter and which to ignore',
+      'Build a content bank so you are never starting from zero',
+    ],
+    outcomes_am: [
+      'እያንዳንዱን ምሽት ሳታጠፉ በተከታታይ ማሳተም',
+      'የትኞቹ ቁጥሮች እንደሚያስፈልጉ እና የትኞቹን ችላ ማለት እንዳለባችሁ ማወቅ',
+      'ከዜሮ እንዳትጀምሩ የይዘት ማከማቻ መገንባት',
     ],
     modules: [
       {
-        id: 'sm-m1',
-        title: 'Module 01: Picking Your Main Topics',
-        description: 'Choose what to talk about and find your clear voice.',
+        id: 'sg-m1',
+        title: 'The Weekly Routine',
+        title_am: 'ሳምንታዊው ልማድ',
         lessons: [
-          { id: 'sm-m1-l1', title: 'Finding What You Are Great At', type: 'video', duration: '13:40' },
-          { id: 'sm-m1-l2', title: 'The 4 Core Content Topics', type: 'video', duration: '17:15' },
-          { id: 'sm-m1-l3', title: 'Keeping a Clean Visual Style', type: 'reading', duration: '06:30' }
-        ]
+          {
+            id: 'sg-m1-l1',
+            title: 'Batching: Record Once, Post All Week',
+            title_am: 'በጥቅል መሥራት፡ አንዴ ቀርጹ፣ ሳምንቱን ሙሉ ለጥፉ',
+            type: 'video',
+            duration: '15:10',
+            videoUrl: SAMPLE.a,
+            isPreview: true,
+          },
+          {
+            id: 'sg-m1-l2',
+            title: 'Your 30-Day Calendar',
+            title_am: 'የ30 ቀን የቀን መቁጠሪያችሁ',
+            type: 'resource',
+            duration: '05:00',
+            videoUrl: null,
+            attachments: [
+              {
+                id: 'sg-cal',
+                name: '30-Day-Content-Calendar.xlsx',
+                name_am: 'የ30-ቀን-የይዘት-የቀን-መቁጠሪያ.xlsx',
+                size: '240 KB',
+                type: 'Excel',
+                url: null,
+              },
+            ],
+          },
+        ],
       },
       {
-        id: 'sm-m2',
-        title: 'Module 02: Creating Posts Fast',
-        description: 'How to create posts fast without running out of ideas.',
+        id: 'sg-m2',
+        title: 'Platform Tactics',
+        title_am: 'የመድረክ ዘዴዎች',
         lessons: [
-          { id: 'sm-m2-l1', title: 'Saving Post Ideas Easily', type: 'video', duration: '14:50' },
-          { id: 'sm-m2-l2', title: 'Turn 1 Idea Into 5 Different Formats', type: 'video', duration: '20:10' },
-          { id: 'sm-m2-l3', title: 'Helpful Free Tools', type: 'resource', duration: '05:00' }
-        ]
+          {
+            id: 'sg-m2-l1',
+            title: 'Telegram for Ethiopian Audiences',
+            title_am: 'ቴሌግራም ለኢትዮጵያ ታዳሚዎች',
+            type: 'video',
+            duration: '18:30',
+            videoUrl: SAMPLE.b,
+          },
+          {
+            id: 'sg-m2-l2',
+            title: 'Short-Form Video That Holds Attention',
+            title_am: 'ትኩረት የሚይዝ አጭር ቪዲዮ',
+            type: 'video',
+            duration: '20:05',
+            videoUrl: SAMPLE.c,
+          },
+        ],
       },
-      {
-        id: 'sm-m3',
-        title: 'Module 03: Turning Followers Into Customers',
-        description: 'How to turn followers into newsletter readers and buyers.',
-        lessons: [
-          { id: 'sm-m3-l1', title: 'Creating a Useful Free Download', type: 'video', duration: '18:35' },
-          { id: 'sm-m3-l2', title: 'Sharing Offers in Stories', type: 'video', duration: '12:20' },
-          { id: 'sm-m3-l3', title: 'Friendly Direct Messages That Help', type: 'video', duration: '16:00' }
-        ]
-      }
-    ]
-  }
-];
-
-// ────────────────────────────────────────────────────────────
-// FREE COURSES (No Checkout Required)
-// ────────────────────────────────────────────────────────────
-export const FREE_COURSES: Course[] = [
-  {
-    id: 'free-seo',
-    title: 'SEO Mastery for Beginners',
-    slug: 'seo-mastery-for-beginners',
-    category: 'SEO Basics',
-    price: 0,
-    currency: 'ETB',
-    duration: '2 Hours',
-    lessonsCount: 9,
-    rating: 4.9,
-    reviewsCount: 842,
-    isFree: true,
-    description: 'Learn how search engines work, how to choose useful keywords, and how to improve your website without confusing technical jargon.',
-    instructor: {
-      name: 'Lamlak',
-      role: 'Founder & Educator',
-      avatar: 'https://res.cloudinary.com/dw1ohipim/image/upload/v1788610521/zdd0btz0dhpdrl3qdekg.jpg',
-    },
-    thumbnail: 'https://images.unsplash.com/photo-1432888498266-38ffec3eaf0a?auto=format&fit=crop&w=800&q=80',
-    level: 'Beginner',
-    highlights: [
-      'Understand the basics of SEO',
-      'Learn how search engines work',
-      'Understand keywords',
-      'Learn about search intent',
-      'Improve basic on-page SEO',
-      'Learn how to create better search-friendly content',
-      'Understand the basics of measuring SEO results'
     ],
+  },
+
+  {
+    kind: 'course',
+    id: 'analytics',
+    slug: 'marketing-analytics-made-simple',
+    title: 'Marketing Analytics Made Simple',
+    title_am: 'የግብይት ትንተና በቀላሉ',
+    category: 'Analytics',
+    category_am: 'ትንተና',
+    summary: 'Stop guessing. Learn the six numbers that tell you what to do next.',
+    summary_am: 'መገመትን አቁሙ። ቀጥሎ ምን ማድረግ እንዳለባችሁ የሚነግሯችሁን ስድስት ቁጥሮች ተማሩ።',
+    description:
+      'Analytics without the dashboards nobody reads. You set up tracking once, then learn to answer three questions every month: what is working, what is wasting money, and what to try next.',
+    description_am:
+      'ማንም የማያነባቸው ዳሽቦርዶች የሌሉበት ትንተና። ክትትልን አንዴ ታዘጋጃላችሁ፤ ከዚያም በየወሩ ሦስት ጥያቄዎችን መመለስ ትማራላችሁ፡ ምን እየሠራ ነው፣ ምን ገንዘብ እያባከነ ነው፣ እና ቀጥሎ ምን መሞከር አለበት።',
+    price: 169,
+    originalPrice: 209,
+    duration: '4 hr 20 mins',
+    level: 'Intermediate',
+    thumbnail:
+      'https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=1200&q=75',
+    instructor: DEFAULT_INSTRUCTOR,
+    status: 'published',
+    publishedAt: '2025-07-30',
+    highlights: [
+      'A one-page monthly report template',
+      'Set up Google Analytics properly, once',
+      'The six numbers that actually change decisions',
+    ],
+    highlights_am: [
+      'የአንድ ገጽ ወርሃዊ ሪፖርት አብነት',
+      'Google Analytics ን በአግባቡ አንዴ ማዘጋጀት',
+      'በእውነት ውሳኔዎችን የሚቀይሩት ስድስት ቁጥሮች',
+    ],
+    outcomes: [
+      'Set up tracking that answers real questions',
+      'Produce a monthly one-page report in 20 minutes',
+      'Spot a channel that is losing money before it drains the budget',
+    ],
+    outcomes_am: [
+      'እውነተኛ ጥያቄዎችን የሚመልስ ክትትል ማዘጋጀት',
+      'ወርሃዊ የአንድ ገጽ ሪፖርት በ20 ደቂቃ ማዘጋጀት',
+      'በጀቱን ከማሟጠጡ በፊት ገንዘብ እያጣ ያለውን መንገድ መለየት',
+    ],
+    modules: [
+      {
+        id: 'an-m1',
+        title: 'Setting Up',
+        title_am: 'ማዘጋጀት',
+        lessons: [
+          {
+            id: 'an-m1-l1',
+            title: 'What to Track and What to Ignore',
+            title_am: 'ምን መከታተል እና ምን ችላ ማለት እንዳለበት',
+            type: 'video',
+            duration: '13:00',
+            videoUrl: SAMPLE.d,
+            isPreview: true,
+          },
+          {
+            id: 'an-m1-l2',
+            title: 'Google Analytics in 20 Minutes',
+            title_am: 'Google Analytics በ20 ደቂቃ',
+            type: 'video',
+            duration: '20:40',
+            videoUrl: SAMPLE.a,
+          },
+        ],
+      },
+      {
+        id: 'an-m2',
+        title: 'Reading the Numbers',
+        title_am: 'ቁጥሮችን ማንበብ',
+        lessons: [
+          {
+            id: 'an-m2-l1',
+            title: 'The Monthly One-Page Report',
+            title_am: 'ወርሃዊ የአንድ ገጽ ሪፖርት',
+            type: 'video',
+            duration: '16:25',
+            videoUrl: SAMPLE.b,
+          },
+        ],
+      },
+    ],
+  },
+
+  // ── Free courses ────────────────────────────────────────────
+  {
+    kind: 'course',
+    id: 'free-foundations',
+    slug: 'digital-marketing-foundations',
+    title: 'Digital Marketing Foundations',
+    title_am: 'የዲጂታል ግብይት መሠረቶች',
+    category: 'Foundations',
+    category_am: 'መሠረቶች',
+    summary: 'The vocabulary and the big picture, in under an hour. Free, forever.',
+    summary_am: 'መሠረታዊ ቃላትና ሙሉው ምስል፣ ከአንድ ሰዓት በታች። ነጻ፣ ለዘላለም።',
+    description:
+      'Start here if terms like funnel, CPC and conversion still feel like jargon. Four short lessons, no jargon, nothing to buy.',
+    description_am:
+      'ፈነል፣ CPC እና ኮንቨርዥን የመሳሰሉ ቃላት አሁንም እንግዳ ከሆኑባችሁ ከዚህ ጀምሩ። አራት አጫጭር ትምህርቶች፣ አስቸጋሪ ቃላት የሉም፣ የሚገዛ ነገር የለም።',
+    price: 0,
+    isFree: true,
+    duration: '52 mins',
+    level: 'Beginner',
+    thumbnail:
+      'https://images.unsplash.com/photo-1553877522-43269d4ea984?auto=format&fit=crop&w=1200&q=75',
+    instructor: DEFAULT_INSTRUCTOR,
+    status: 'published',
+    publishedAt: '2025-01-08',
+    highlights: [
+      'Plain-language definitions of every term you keep hearing',
+      'How the pieces fit together',
+      'No credit card, no email required',
+    ],
+    highlights_am: [
+      'ደጋግማችሁ የምትሰሟቸው ቃላት በቀላል ቋንቋ ተብራርተዋል',
+      'ክፍሎቹ እንዴት እርስ በርስ እንደሚገጣጠሙ',
+      'ክሬዲት ካርድ አያስፈልግም፣ ኢሜይልም አይጠየቅም',
+    ],
+    outcomes: [
+      'Follow a marketing conversation without getting lost',
+      'Know which area to learn first for your situation',
+    ],
+    outcomes_am: [
+      'ሳትጠፉ የግብይት ውይይትን መከታተል',
+      'ለሁኔታችሁ የትኛውን ዘርፍ መጀመሪያ መማር እንዳለባችሁ ማወቅ',
+    ],
+    modules: [
+      {
+        id: 'ff-m1',
+        title: 'The Basics',
+        title_am: 'መሠረታዊ ነገሮች',
+        lessons: [
+          {
+            id: 'ff-m1-l1',
+            title: 'What Digital Marketing Covers',
+            title_am: 'ዲጂታል ግብይት ምን ይሸፍናል',
+            type: 'video',
+            duration: '11:20',
+            videoUrl: SAMPLE.a,
+          },
+          {
+            id: 'ff-m1-l2',
+            title: 'The Words People Use',
+            title_am: 'ሰዎች የሚጠቀሙባቸው ቃላት',
+            type: 'video',
+            duration: '14:05',
+            videoUrl: SAMPLE.b,
+          },
+          {
+            id: 'ff-m1-l3',
+            title: 'Where to Start for Your Business',
+            title_am: 'ለንግዳችሁ ከየት መጀመር እንዳለባችሁ',
+            type: 'video',
+            duration: '15:40',
+            videoUrl: SAMPLE.c,
+          },
+          {
+            id: 'ff-m1-l4',
+            title: 'Your Next Step',
+            title_am: 'ቀጣይ እርምጃችሁ',
+            type: 'reading',
+            duration: '05:00',
+            videoUrl: null,
+            body: 'You now know enough to choose a direction. Pick the one area that would make the biggest difference to your business in the next 90 days, and go deep on that instead of sampling all of them.',
+            body_am:
+              'አሁን አቅጣጫ ለመምረጥ የሚበቃ እውቀት አላችሁ። በሚቀጥሉት 90 ቀናት ለንግዳችሁ ትልቁን ለውጥ የሚያመጣውን አንድ ዘርፍ ምረጡ፤ ሁሉንም ከመቅመስ ይልቅ በዚያ ላይ ጥልቀት ግቡ።',
+          },
+        ],
+      },
+    ],
+  },
+
+  {
+    kind: 'course',
+    id: 'free-seo-starter',
+    slug: 'seo-starter-kit',
+    title: 'SEO Starter Kit',
+    title_am: 'የSEO መነሻ ስብስብ',
+    category: 'SEO',
+    category_am: 'SEO',
+    summary: 'Get found on Google. Three lessons, no cost.',
+    summary_am: 'በGoogle ላይ ተገኙ። ሦስት ትምህርቶች፣ ያለ ክፍያ።',
+    description:
+      'A free introduction to search: how Google decides what to show, how to find words people are actually typing, and the ten fixes that matter most on your own pages.',
+    description_am:
+      'ስለ ፍለጋ ነጻ መግቢያ፡ Google ምን እንደሚያሳይ እንዴት እንደሚወስን፣ ሰዎች በእውነት የሚጽፏቸውን ቃላት እንዴት ማግኘት እንደሚቻል፣ እና በራሳችሁ ገጾች ላይ በጣም አስፈላጊ የሆኑት አሥር ማስተካከያዎች።',
+    price: 0,
+    isFree: true,
+    duration: '48 mins',
+    level: 'Beginner',
+    thumbnail:
+      'https://images.unsplash.com/photo-1571721795195-a2ca2d3370a9?auto=format&fit=crop&w=1200&q=75',
+    instructor: DEFAULT_INSTRUCTOR,
+    status: 'published',
+    publishedAt: '2025-03-14',
+    highlights: [
+      'How search engines actually rank pages',
+      'Free tools for finding keywords',
+      'A 10-point checklist for any page',
+    ],
+    highlights_am: [
+      'የፍለጋ ሞተሮች ገጾችን በእውነት እንዴት እንደሚደረድሩ',
+      'ቁልፍ ቃላትን ለማግኘት ነጻ መሣሪያዎች',
+      'ለማንኛውም ገጽ የ10 ነጥብ ማረጋገጫ ዝርዝር',
+    ],
+    outcomes: ['Find keywords worth targeting', 'Fix the ten things that matter on a page'],
+    outcomes_am: ['ዒላማ ማድረግ የሚገባቸውን ቁልፍ ቃላት ማግኘት', 'በአንድ ገጽ ላይ አስፈላጊ የሆኑትን አሥር ነገሮች ማስተካከል'],
     modules: [
       {
         id: 'seo-m1',
-        title: 'Module 1 — SEO Basics',
+        title: 'Search Basics',
+        title_am: 'የፍለጋ መሠረቶች',
         lessons: [
-          { id: 'seo-m1-l1', title: 'What is SEO?', type: 'video', duration: '10:00' },
-          { id: 'seo-m1-l2', title: 'How Search Engines Work', type: 'video', duration: '12:00' },
-          { id: 'seo-m1-l3', title: 'Why SEO Matters', type: 'video', duration: '08:00' }
-        ]
+          {
+            id: 'seo-m1-l1',
+            title: 'How Google Decides',
+            title_am: 'Google እንዴት እንደሚወስን',
+            type: 'video',
+            duration: '16:00',
+            videoUrl: SAMPLE.d,
+          },
+          {
+            id: 'seo-m1-l2',
+            title: 'Finding Keywords for Free',
+            title_am: 'ቁልፍ ቃላትን በነጻ ማግኘት',
+            type: 'video',
+            duration: '17:30',
+            videoUrl: SAMPLE.a,
+          },
+          {
+            id: 'seo-m1-l3',
+            title: 'The 10-Point Page Checklist',
+            title_am: 'የ10 ነጥብ የገጽ ማረጋገጫ ዝርዝር',
+            type: 'video',
+            duration: '14:30',
+            videoUrl: SAMPLE.b,
+          },
+        ],
       },
-      {
-        id: 'seo-m2',
-        title: 'Module 2 — Keywords',
-        lessons: [
-          { id: 'seo-m2-l1', title: 'What Are Keywords?', type: 'video', duration: '11:00' },
-          { id: 'seo-m2-l2', title: 'Search Intent', type: 'video', duration: '14:00' },
-          { id: 'seo-m2-l3', title: 'Choosing Keywords', type: 'video', duration: '15:00' }
-        ]
-      },
-      {
-        id: 'seo-m3',
-        title: 'Module 3 — On-Page SEO',
-        lessons: [
-          { id: 'seo-m3-l1', title: 'Page Titles', type: 'video', duration: '09:00' },
-          { id: 'seo-m3-l2', title: 'Meta Descriptions', type: 'video', duration: '07:00' },
-          { id: 'seo-m3-l3', title: 'Content Optimization', type: 'video', duration: '16:00' }
-        ]
-      }
-    ]
-  },
-  {
-    id: 'free-email',
-    title: 'Email Marketing Excellence',
-    slug: 'email-marketing-excellence',
-    category: 'Email Basics',
-    price: 0,
-    currency: 'ETB',
-    duration: '1.5 Hours',
-    lessonsCount: 6,
-    rating: 4.8,
-    reviewsCount: 520,
-    isFree: true,
-    description: 'Learn the foundational steps to building an email list and sending messages that people actually want to read.',
-    instructor: {
-      name: 'Lamlak',
-      role: 'Founder & Educator',
-      avatar: 'https://res.cloudinary.com/dw1ohipim/image/upload/v1788610521/zdd0btz0dhpdrl3qdekg.jpg',
-    },
-    thumbnail: 'https://images.unsplash.com/photo-1596526131083-e8c633c948d2?auto=format&fit=crop&w=800&q=80',
-    level: 'Beginner',
-    highlights: [
-      'Learn how to capture emails legally',
-      'Understand the Welcome Sequence',
-      'Learn how to avoid the spam folder'
     ],
-    modules: [
-      {
-        id: 'em-m1',
-        title: 'Module 1 — List Building',
-        lessons: [
-          { id: 'em-m1-l1', title: 'Why Email Matters', type: 'video', duration: '08:00' },
-          { id: 'em-m1-l2', title: 'Setting Up Forms', type: 'video', duration: '12:00' },
-        ]
-      },
-      {
-        id: 'em-m2',
-        title: 'Module 2 — Sending Emails',
-        lessons: [
-          { id: 'em-m2-l1', title: 'The Welcome Email', type: 'video', duration: '10:00' },
-          { id: 'em-m2-l2', title: 'Writing Newsletters', type: 'video', duration: '15:00' },
-        ]
-      }
-    ]
   },
-  {
-    id: 'free-content',
-    title: 'Content Marketing Blueprint',
-    slug: 'content-marketing-blueprint',
-    category: 'Content Basics',
-    price: 0,
-    currency: 'ETB',
-    duration: '2.5 Hours',
-    lessonsCount: 7,
-    rating: 4.7,
-    reviewsCount: 312,
-    isFree: true,
-    description: 'A beginner-friendly guide to planning, creating, and publishing content that attracts the right audience.',
-    instructor: {
-      name: 'Lamlak',
-      role: 'Founder & Educator',
-      avatar: 'https://res.cloudinary.com/dw1ohipim/image/upload/v1788610521/zdd0btz0dhpdrl3qdekg.jpg',
-    },
-    thumbnail: 'https://images.unsplash.com/photo-1611162617474-5b21e879e113?auto=format&fit=crop&w=800&q=80',
-    level: 'Beginner',
-    highlights: [
-      'Learn how to plan a simple content calendar',
-      'Understand the difference between platforms',
-      'Learn how to repurpose one piece of content'
-    ],
-    modules: [
-      {
-        id: 'cm-m1',
-        title: 'Module 1 — Planning',
-        lessons: [
-          { id: 'cm-m1-l1', title: 'What is Content Marketing?', type: 'video', duration: '09:00' },
-          { id: 'cm-m1-l2', title: 'Choosing Your Platforms', type: 'video', duration: '11:00' },
-          { id: 'cm-m1-l3', title: 'The Content Calendar', type: 'video', duration: '14:00' }
-        ]
-      },
-      {
-        id: 'cm-m2',
-        title: 'Module 2 — Creation',
-        lessons: [
-          { id: 'cm-m2-l1', title: 'Writing Your First Post', type: 'video', duration: '13:00' },
-          { id: 'cm-m2-l2', title: 'Repurposing Content', type: 'video', duration: '16:00' }
-        ]
-      }
-    ]
-  }
 ];
 
-// Legacy Resources 
-export const RESOURCES: ResourceItem[] = [
-  {
-    id: 'swipe-files',
-    title: 'Copywriting Swipe Files',
-    category: 'Copywriting',
-    price: 45.00,
-    format: 'Notion + PDF Vault',
-    pagesOrCount: '150+ Examples',
-    description: 'Over 150 real examples of headlines, sales emails, ads, and web pages with simple notes on why they work.',
-    thumbnail: 'https://images.unsplash.com/photo-1517842645767-c639042777db?auto=format&fit=crop&w=800&q=80',
-    badge: 'Popular',
-    deliverables: [
-      '150+ real marketing examples',
-      'Easy-to-copy Notion template',
-      'Headline ideas cheat sheet',
-      'Welcome email examples'
-    ]
-  },
-  {
-    id: 'strategy-guide',
-    title: 'Digital Marketing Strategy Guide',
-    category: 'Planning',
-    price: 59.00,
-    format: 'Workbook + Sheets',
-    pagesOrCount: '84 Pages',
-    description: 'A simple step-by-step guide to help you plan, run, and track your marketing throughout the year.',
-    thumbnail: 'https://images.unsplash.com/photo-1434626881859-194d67b2b86f?auto=format&fit=crop&w=800&q=80',
-    deliverables: [
-      '84-page practical guidebook',
-      'Simple budget and revenue spreadsheet',
-      'Checklist for your customer journey',
-      'Quarterly goals dashboard'
-    ]
-  },
-  {
-    id: 'content-calendar',
-    title: 'Social Media Content Calendar',
-    category: 'Content',
-    price: 39.00,
-    format: 'Airtable + Google Sheets',
-    pagesOrCount: '365 Days of Ideas',
-    description: 'A full year of post ideas, easy schedules, and tracking sheets for Google Sheets and Airtable.',
-    thumbnail: 'https://images.unsplash.com/photo-1506784365847-bbad939e9335?auto=format&fit=crop&w=800&q=80',
-    deliverables: [
-      '365 ready-to-use post ideas',
-      'Scheduling boards for all major platforms',
-      'Review and planning workflow',
-      'List of hooks and caption starters'
-    ]
-  },
-  {
-    id: 'email-pack',
-    title: 'Email Marketing Template Pack',
-    category: 'Email',
-    price: 49.00,
-    format: 'Templates + Text',
-    pagesOrCount: '24 Ready Emails',
-    description: '24 ready-to-use email templates for welcoming new subscribers, launching products, and following up with buyers.',
-    thumbnail: 'https://images.unsplash.com/photo-1563986768609-322da13575f3?auto=format&fit=crop&w=800&q=80',
-    badge: 'Ready to Use',
-    deliverables: [
-      '24 customizable email templates',
-      'Easy to copy into any email software',
-      'Clean email wireframe layouts',
-      'Subject line ideas that get opened'
-    ]
-  }
-];
+export const PAID_COURSES = COURSES.filter((c) => !c.isFree);
+export const FREE_COURSES = COURSES.filter((c) => c.isFree);
