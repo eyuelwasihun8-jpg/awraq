@@ -1,0 +1,24 @@
+import { JSDOM } from 'jsdom';
+import fs from 'node:fs';
+const bundle = fs.readFileSync('tests/.build/bundle.js', 'utf8');
+const dom = new JSDOM(`<!doctype html><html lang="en"><body><div id="root"></div></body></html>`,
+  { url: 'http://localhost/?lng=am', pretendToBeVisual: true, runScripts: 'outside-only' });
+const { window } = dom; const doc = window.document;
+window.matchMedia ||= (q) => ({ matches: false, media: q, addEventListener(){}, removeEventListener(){}, addListener(){}, removeListener(){} });
+window.scrollTo = () => {};
+const errs = []; const orig = console.error;
+console.error = (...a) => { const s = a.map(String).join(' '); if (!/not wrapped in act/.test(s)) errs.push(s); };
+window.eval(bundle);
+await window.__render('/?lng=am');
+await new Promise(r => setTimeout(r, 2000));
+const t = doc.getElementById('root').textContent || '';
+console.error = orig;
+const ethiopic = (t.match(/[\u1200-\u137F]/g) || []).length;
+const latinWords = (t.match(/\b(Browse courses|Sign in|Three ways to learn|Common questions)\b/g) || []).length;
+console.log(`html lang           : ${doc.documentElement.lang}`);
+console.log(`Ethiopic characters : ${ethiopic}`);
+console.log(`Untranslated UI hits: ${latinWords}`);
+console.log(`Console errors      : ${errs.length}`);
+console.log(ethiopic > 800 && latinWords === 0 && doc.documentElement.lang === 'am' ? '\nPASS  ?lng=am renders the homepage in Amharic.' : '\nFAIL');
+if (errs.length) errs.slice(0,3).forEach(e => console.log('  ! ' + e.slice(0,200)));
+if (!(ethiopic > 800 && latinWords === 0 && doc.documentElement.lang === 'am') || errs.length) process.exitCode = 1;

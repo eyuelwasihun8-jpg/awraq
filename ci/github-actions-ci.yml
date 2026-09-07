@@ -1,0 +1,38 @@
+# NOTE: move this file to .github/workflows/ci.yml to activate it.
+# It lives here because the bot that pushed this branch does not hold the
+# GitHub `workflows` permission and cannot create files under .github/workflows.
+
+name: CI
+
+# The repository had no CI (AUDIT.md §M8), so a broken build, a type error or
+# a dead purchase flow could only be found by a customer. Every push now runs
+# the same three gates a reviewer would.
+on:
+  push:
+    branches: ['**']
+  pull_request:
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci --legacy-peer-deps
+
+      - name: Type check
+        run: npm run typecheck
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Build
+        run: npx vite build
+
+      - name: Smoke tests (routes, i18n, purchase flow)
+        run: npm test

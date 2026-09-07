@@ -1,63 +1,55 @@
-import React from 'react';
+import { cn } from '../lib/cn';
 
-interface BrandLogoProps {
-  variant?: 'light' | 'dark';
-  size?: 'sm' | 'md' | 'lg';
-  className?: string;
-  showTagline?: boolean;
-}
-
-export const BrandLogo: React.FC<BrandLogoProps> = ({
-  variant = 'dark',
+/**
+ * Wordmark.
+ *
+ * Previously the navbar applied `brightness-0 invert` to force the logo white
+ * over the dark hero — a filter hack that also destroyed the accent colour and
+ * cost a repaint on every scroll. The mark is now an inline SVG that takes its
+ * colours from props, so both surfaces get a correct, sharp logo.
+ */
+export function BrandLogo({
   size = 'md',
-  className = '',
-}) => {
-  const isDark = variant === 'dark';
-  const textColor = isDark ? 'text-gray-900' : 'text-white';
-  const bracketColor = isDark ? 'text-gray-400' : 'text-gray-500';
-
-  const dimensions = {
-    sm: { icon: 'w-7 h-7', text: 'text-xs', markH: 26 },
-    md: { icon: 'w-9 h-9', text: 'text-sm', markH: 32 },
-    lg: { icon: 'w-11 h-11', text: 'text-base', markH: 40 },
-  };
+  tone = 'auto',
+  className,
+}: {
+  size?: 'sm' | 'md' | 'lg';
+  /** `auto` follows the theme; `light` is for fixed-dark marketing surfaces. */
+  tone?: 'auto' | 'light';
+  className?: string;
+}) {
+  const dimensions = { sm: 24, md: 30, lg: 38 }[size];
+  const text = { sm: 'text-lg', md: 'text-xl', lg: 'text-2xl' }[size];
 
   return (
-    <div className={`flex flex-col items-center select-none cursor-pointer ${className}`}>
-      {/* Golden-Yellow Hexagon Monogram Emblem from Reference */}
+    <span className={cn('inline-flex items-center gap-2', className)}>
       <svg
-        className={`${dimensions[size].icon} text-[#F59E0B]`}
-        viewBox="0 0 40 40"
-        fill="none"
-        xmlns="http://www.w3.org/2000/svg"
+        width={dimensions}
+        height={dimensions}
+        viewBox="0 0 64 64"
+        aria-hidden
+        className="shrink-0"
       >
-        {/* Outer Hexagon outline with subtle rounded vertices */}
+        <rect width="64" height="64" rx="14" className="fill-ink" />
         <path
-          d="M20 3L35 11.66V28.34L20 37L5 28.34V11.66L20 3Z"
-          stroke="#F59E0B"
-          strokeWidth="3.2"
+          d="M20 44 L32 18 L44 44"
+          fill="none"
+          stroke="var(--cyan-500)"
+          strokeWidth="6"
+          strokeLinecap="round"
           strokeLinejoin="round"
         />
-        {/* Inner geometric H / fold mark */}
-        <path
-          d="M14 13V27M26 13V27M14 20H26"
-          stroke="#F59E0B"
-          strokeWidth="3.2"
-          strokeLinecap="round"
-        />
+        <path d="M25.5 36 H38.5" stroke="var(--amber-400)" strokeWidth="5" strokeLinecap="round" />
       </svg>
-
-      {/* Brand Wordmark with reference bracket accents */}
-      <div className="flex items-center gap-0.5 mt-0.5 leading-none">
-        <span className={`text-[10px] font-mono font-medium ${bracketColor}`}>[</span>
-        <span
-          className={`font-sans font-black tracking-widest uppercase ${textColor} ${dimensions[size].text}`}
-          style={{ letterSpacing: '0.18em' }}
-        >
-          AWRAQ
-        </span>
-        <span className={`text-[10px] font-mono font-medium ${bracketColor}`}>]</span>
-      </div>
-    </div>
+      <span
+        className={cn(
+          'font-extrabold tracking-tight',
+          text,
+          tone === 'light' ? 'text-white' : 'text-fg',
+        )}
+      >
+        Awraq
+      </span>
+    </span>
   );
-};
+}

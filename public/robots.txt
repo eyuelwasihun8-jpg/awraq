@@ -1,0 +1,12 @@
+User-agent: *
+Allow: /
+
+# The learner's private area has nothing useful for a crawler and should never
+# appear in search results.
+Disallow: /checkout
+Disallow: /dashboard
+Disallow: /learn/
+Disallow: /certificate/
+Disallow: /cart
+
+Sitemap: https://awraq.et/sitemap.xml

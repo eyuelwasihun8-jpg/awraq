@@ -1,126 +1,150 @@
-import { DigitalProduct } from '../types';
+import type { DigitalProduct } from '../types';
 
-const now = new Date('2026-09-05T00:00:00Z').toISOString();
-
+/**
+ * Digital products.
+ *
+ * `url: null` means the asset is not yet provisioned. The UI renders a
+ * disabled row with an explanation rather than an anchor to "#" — the previous
+ * build shipped seven files all pointing at "#", so paying customers clicked
+ * "Download" and the page just jumped to the top (AUDIT.md §C3).
+ *
+ * In production these are replaced at request time with signed, expiring URLs
+ * issued only after a server-side entitlement check.
+ */
 export const DIGITAL_PRODUCTS: DigitalProduct[] = [
   {
-    id: 'dp-copywriting-swipe',
-    slug: 'copywriting-swipe-files',
-    title: 'Copywriting Swipe Files',
-    shortDescription: 'A collection of useful copywriting examples and ideas to help you write better marketing messages.',
-    description: 'Never stare at a blank page again. This premium swipe file contains our best performing ad copies, email hooks, and landing page structures. A collection of useful copywriting examples and ideas to help you write better marketing messages.',
-    price: 45.00,
-    currency: 'ETB',
-    thumbnail: 'https://images.unsplash.com/photo-1542435503-956c469947f6?auto=format&fit=crop&w=800&q=80',
-    category: 'Copywriting',
+    kind: 'product',
+    id: 'swipe-file',
+    slug: 'copywriting-swipe-file',
+    title: 'Copywriting Swipe File',
+    title_am: 'የጽሑፍ አጻጻፍ ናሙና ስብስብ',
+    category: 'Templates',
+    category_am: 'አብነቶች',
+    summary: '180 headlines, hooks and calls to action you can adapt today.',
+    summary_am: 'ዛሬውኑ ልታስተካክሏቸው የምትችሏቸው 180 ርዕሶች፣ መሳቢያዎች እና የተግባር ጥሪዎች።',
+    description:
+      'A categorised library of lines that work, pulled from campaigns across retail, services and hospitality. Each entry notes why it works so you are adapting the pattern, not copying the words.',
+    description_am:
+      'በችርቻሮ፣ በአገልግሎት እና በእንግዳ አቀባበል ዘርፎች ካሉ ዘመቻዎች የተሰበሰቡ የሚሠሩ መስመሮች በምድብ የተደራጀ ቤተ-መጻሕፍት። እያንዳንዱ ግቤት ለምን እንደሚሠራ ይገልጻል፤ ስለዚህ ቃላቱን ሳይሆን ዘይቤውን ታስተካክላላችሁ።',
+    price: 49,
+    originalPrice: 79,
+    thumbnail:
+      'https://images.unsplash.com/photo-1519389950473-47ba0277781c?auto=format&fit=crop&w=1200&q=75',
+    status: 'published',
+    publishedAt: '2025-04-01',
+    highlights: [
+      '180 lines across 12 categories',
+      'A note on why each one works',
+      'Editable Google Docs version included',
+    ],
+    highlights_am: [
+      'በ12 ምድቦች የተከፋፈሉ 180 መስመሮች',
+      'እያንዳንዱ ለምን እንደሚሠራ ማብራሪያ',
+      'ሊስተካከል የሚችል የGoogle Docs ቅጂ ተካትቷል',
+    ],
     files: [
-      { id: 'f1', name: 'Swipe-Files.pdf', size: '2.1 MB', type: 'PDF', url: '#' },
-      { id: 'f2', name: 'Headline-Examples.pdf', size: '1.4 MB', type: 'PDF', url: '#' },
-      { id: 'f3', name: 'CTA-Examples.pdf', size: '0.8 MB', type: 'PDF', url: '#' }
+      { id: 'sf-1', name: 'Swipe-File.pdf', size: '2.1 MB', type: 'PDF', url: null },
+      { id: 'sf-2', name: 'Headline-Patterns.pdf', size: '1.4 MB', type: 'PDF', url: null },
+      { id: 'sf-3', name: 'Editable-Templates.docx', size: '0.8 MB', type: 'Word', url: null },
     ],
-    status: 'Published',
-    includes: [
-      'Headline examples',
-      'Call-to-action examples',
-      'Sales copy examples',
-      'Email examples',
-      'Social media copy examples'
-    ],
-    whoIsItFor: [
-      'Freelance Copywriters',
-      'Digital Marketers',
-      'Small Business Owners'
-    ],
-    createdAt: now,
-    updatedAt: now,
-    publishedAt: now,
   },
   {
-    id: 'dp-strategy-guide',
-    slug: 'digital-marketing-strategy-guide',
-    title: 'Digital Marketing Strategy Guide',
-    shortDescription: 'A practical guide to help you plan your digital marketing step by step.',
-    description: 'Stop guessing and start planning. This comprehensive strategy guide takes you through the exact frameworks used by top agencies to plan, execute, and measure digital marketing campaigns.',
-    price: 59.00,
-    currency: 'ETB',
-    thumbnail: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=800&q=80',
-    category: 'Strategy',
+    kind: 'product',
+    id: 'strategy-guide',
+    slug: 'marketing-strategy-guide',
+    title: 'Marketing Strategy Guide',
+    title_am: 'የግብይት ስትራቴጂ መመሪያ',
+    category: 'Guides',
+    category_am: 'መመሪያዎች',
+    summary: 'A 64-page workbook that ends with your plan written down.',
+    summary_am: 'በመጨረሻ ዕቅዳችሁ ተጽፎ የሚያልቅ የ64 ገጽ የሥራ መጽሐፍ።',
+    description:
+      'Not a book you read — a workbook you fill in. Eleven exercises take you from "we should probably do marketing" to a one-page plan with owners, budgets and dates.',
+    description_am:
+      'የሚነበብ መጽሐፍ አይደለም — የምትሞሉት የሥራ መጽሐፍ ነው። አሥራ አንድ ልምምዶች "ምናልባት ግብይት ማድረግ አለብን" ከሚለው ወደ ኃላፊዎች፣ በጀቶች እና ቀኖች ያሉት የአንድ ገጽ ዕቅድ ያደርሷችኋል።',
+    price: 89,
+    thumbnail:
+      'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=1200&q=75',
+    status: 'published',
+    publishedAt: '2025-02-20',
+    highlights: [
+      '11 fill-in exercises',
+      'Budget calculator included',
+      'Worked example from a real Addis retailer',
+    ],
+    highlights_am: [
+      '11 የሚሞሉ ልምምዶች',
+      'የበጀት ማስያ ተካትቷል',
+      'ከእውነተኛ የአዲስ አበባ ችርቻሮ ነጋዴ የተወሰደ የተሠራ ምሳሌ',
+    ],
     files: [
-      { id: 'f4', name: 'Digital_Marketing_Strategy_Guide.pdf', size: '8.1 MB', type: 'PDF', url: '#' },
-      { id: 'f5', name: 'Strategy_Checklist.pdf', size: '1.1 MB', type: 'PDF', url: '#' }
+      { id: 'sg-1', name: 'Strategy-Guide.pdf', size: '8.1 MB', type: 'PDF', url: null },
+      { id: 'sg-2', name: 'Budget-Calculator.xlsx', size: '1.1 MB', type: 'Excel', url: null },
     ],
-    status: 'Published',
-    includes: [
-      'Step-by-step strategy planning',
-      'Budget allocation templates',
-      'KPI tracking sheets',
-      'Target audience worksheets'
-    ],
-    whoIsItFor: [
-      'Marketing Managers',
-      'Founders',
-      'Agency Owners'
-    ],
-    createdAt: now,
-    updatedAt: now,
-    publishedAt: now,
   },
   {
-    id: 'dp-social-calendar',
-    slug: 'social-media-content-calendar',
-    title: 'Social Media Content Calendar',
-    shortDescription: 'A ready-to-use content calendar to help you plan your social media posts.',
-    description: 'Consistency is the key to social media growth. This extensive calendar provides 365 days of content prompts, platform-specific strategies, and organizational templates.',
-    price: 39.00,
-    currency: 'ETB',
-    thumbnail: 'https://images.unsplash.com/photo-1611162617474-5b21e879e113?auto=format&fit=crop&w=800&q=80',
-    category: 'Social Media',
+    kind: 'product',
+    id: 'content-calendar',
+    slug: 'social-content-calendar',
+    title: 'Social Content Calendar',
+    title_am: 'የማኅበራዊ ይዘት የቀን መቁጠሪያ',
+    category: 'Templates',
+    category_am: 'አብነቶች',
+    summary: 'A year of post ideas, pre-scheduled around Ethiopian holidays.',
+    summary_am: 'በኢትዮጵያ በዓላት ዙሪያ አስቀድሞ የተያዘ የአንድ ዓመት የልጥፍ ሐሳቦች።',
+    description:
+      'A spreadsheet with 365 prompts already placed on the calendar, built around the Ethiopian holiday and business cycle rather than a generic Western one.',
+    description_am:
+      'በአጠቃላይ የምዕራባውያን ዑደት ሳይሆን በኢትዮጵያ የበዓል እና የንግድ ዑደት ዙሪያ የተገነባ፣ 365 ሐሳቦች አስቀድመው በቀን መቁጠሪያ ላይ የተቀመጡበት የተመን ሉህ።',
+    price: 39,
+    thumbnail:
+      'https://images.unsplash.com/photo-1506784365847-bbad939e9335?auto=format&fit=crop&w=1200&q=75',
+    status: 'published',
+    publishedAt: '2025-05-25',
+    highlights: [
+      '365 prompts, already dated',
+      'Built around Ethiopian holidays',
+      'Google Sheets and Excel versions',
+    ],
+    highlights_am: [
+      '365 ሐሳቦች፣ አስቀድሞ በቀን የተያዙ',
+      'በኢትዮጵያ በዓላት ዙሪያ የተገነባ',
+      'የGoogle Sheets እና Excel ቅጂዎች',
+    ],
     files: [
-      { id: 'f6', name: 'social-media-content-calendar.xlsx', size: '2.5 MB', type: 'Excel', url: '#' }
+      {
+        id: 'cc-1',
+        name: 'Content-Calendar.xlsx',
+        size: '2.5 MB',
+        type: 'Excel',
+        url: null,
+      },
     ],
-    status: 'Published',
-    includes: [
-      '365 days of content prompts',
-      'Hashtag strategy guide',
-      'Platform-specific posting times',
-      'Monthly review templates'
-    ],
-    whoIsItFor: [
-      'Social Media Managers',
-      'Content Creators',
-      'Influencers'
-    ],
-    createdAt: now,
-    updatedAt: now,
-    publishedAt: now,
   },
   {
-    id: 'dp-email-templates',
-    slug: 'email-marketing-template-pack',
-    title: 'Email Marketing Template Pack',
-    shortDescription: 'Ready-to-use email templates to help you create useful marketing emails.',
-    description: 'Boost your open and click-through rates. This pack includes welcome sequences, abandoned cart reminders, and promotional blasts ready to be copy-pasted into your ESP.',
-    price: 49.00,
-    currency: 'ETB',
-    thumbnail: 'https://images.unsplash.com/photo-1596526131083-e8c633c948d2?auto=format&fit=crop&w=800&q=80',
-    category: 'Email Marketing',
+    kind: 'product',
+    id: 'email-pack',
+    slug: 'email-template-pack',
+    title: 'Email Template Pack',
+    title_am: 'የኢሜይል አብነት ጥቅል',
+    category: 'Templates',
+    category_am: 'አብነቶች',
+    summary: '24 emails: welcome sequences, launches, win-backs and receipts.',
+    summary_am: '24 ኢሜይሎች፡ የእንኳን ደህና መጣችሁ ተከታታዮች፣ ማስጀመሪያዎች፣ መልሶ ማግኛዎች እና ደረሰኞች።',
+    description:
+      'Every email you need for the first year, written in plain language and tested on Ethiopian audiences. Copy, adjust the name of your business, send.',
+    description_am:
+      'ለመጀመሪያው ዓመት የሚያስፈልጓችሁ ሁሉም ኢሜይሎች፣ በቀላል ቋንቋ ተጽፈው በኢትዮጵያ ታዳሚዎች ላይ ተፈትነዋል። ቅዱ፣ የንግዳችሁን ስም አስተካክሉ፣ ላኩ።',
+    price: 59,
+    originalPrice: 89,
+    thumbnail:
+      'https://images.unsplash.com/photo-1557200134-90327ee9fafa?auto=format&fit=crop&w=1200&q=75',
+    status: 'published',
+    publishedAt: '2025-06-05',
+    highlights: ['24 ready-to-send emails', 'Amharic and English versions', 'Subject line variants'],
+    highlights_am: ['24 ለመላክ ዝግጁ ኢሜይሎች', 'የአማርኛ እና የእንግሊዝኛ ቅጂዎች', 'የርዕስ መስመር አማራጮች'],
     files: [
-      { id: 'f7', name: 'Email_Templates_Pack.zip', size: '12.4 MB', type: 'ZIP Archive', url: '#' }
+      { id: 'ep-1', name: 'Email-Templates.zip', size: '12.4 MB', type: 'ZIP Archive', url: null },
     ],
-    status: 'Published',
-    includes: [
-      'Welcome series templates',
-      'Abandoned cart sequences',
-      'Newsletter frameworks',
-      'Subject line formulas'
-    ],
-    whoIsItFor: [
-      'E-commerce Owners',
-      'Email Marketers',
-      'Newsletter Creators'
-    ],
-    createdAt: now,
-    updatedAt: now,
-    publishedAt: now,
-  }
+  },
 ];

@@ -1,0 +1,11 @@
+{
+  "name": "Awraq — Digital Marketing Courses",
+  "short_name": "Awraq",
+  "description": "Practical digital marketing courses in Amharic and English.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0E0024",
+  "theme_color": "#0E0024",
+  "lang": "en",
+  "icons": [{ "src": "/favicon.svg", "sizes": "any", "type": "image/svg+xml" }]
+}

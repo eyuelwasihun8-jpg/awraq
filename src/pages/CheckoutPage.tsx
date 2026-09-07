@@ -1,203 +1,350 @@
-import React, { useState } from 'react';
-import { Course, DigitalProduct, BundleItem, Page } from '../types';
-import { ArrowLeft, ShieldCheck, CheckCircle2, Download, PlayCircle, Layers, Loader2 } from 'lucide-react';
+import { useState } from 'react';
+import { Link, Navigate, useNavigate } from 'react-router-dom';
+import { Trans, useTranslation } from 'react-i18next';
+import { AlertTriangle, CheckCircle2, CreditCard, Lock, Smartphone } from 'lucide-react';
+import { useStore } from '../store/StoreProvider';
+import { expandToOrderLines, getItem } from '../data/catalog';
+import { useDocumentMeta } from '../lib/useDocumentMeta';
+import { useLocalized } from '../lib/useLocalized';
+import { formatPrice } from '../lib/format';
+import { cn } from '../lib/cn';
+import type { Order, PaymentMethod } from '../types';
+import { Button, ButtonLink } from '../components/ui/Button';
+import { Field, TextInput } from '../components/ui/Field';
+import { SmartImage } from '../components/ui/SmartImage';
 
-interface CheckoutPageProps {
-  item: Course | DigitalProduct | BundleItem;
-  onNavigate: (page: Page) => void;
-  onCompletePurchase: (itemId: string, type: 'course' | 'digital' | 'bundle') => void;
-}
+/**
+ * Checkout.
+ *
+ * What the old flow did: `setTimeout(() => setPurchased(true), 2000)`. No
+ * validation, no failure path, no order record, no receipt, and the "payment
+ * method" radio group had no effect on anything (AUDIT.md §C4).
+ *
+ * What this does:
+ *
+ * - Validates the phone number and email BEFORE charging, with errors bound to
+ *   their inputs via aria-describedby.
+ * - Requires an explicit terms acceptance that links to real policy pages.
+ * - Models a failure path. Payments fail — Telebirr times out, balances are
+ *   short — and a checkout that cannot fail will ship a UI that cannot explain
+ *   the failure.
+ * - Writes an Order with a reference the customer can quote in a support
+ *   message, and grants entitlements from the order rather than from a
+ *   free-floating boolean.
+ *
+ * ⚠️  STILL A SIMULATION. `payForCart` resolves locally; entitlements live in
+ * localStorage and are trivially forgeable. Before launch this must post to a
+ * server that (a) creates the order, (b) redirects to the Chapa/Telebirr
+ * gateway, (c) grants entitlements only on the verified provider webhook, and
+ * (d) gates media/download URLs behind that grant.
+ */
 
-type PaymentMethod = 'telebirr' | 'cbe' | 'chapa-hosted';
+const METHODS: { id: PaymentMethod; icon: typeof Smartphone; needsPhone: boolean }[] = [
+  { id: 'telebirr', icon: Smartphone, needsPhone: true },
+  { id: 'cbe', icon: Smartphone, needsPhone: true },
+  { id: 'chapa', icon: CreditCard, needsPhone: false },
+];
 
-export const CheckoutPage: React.FC<CheckoutPageProps> = ({ 
-  item, 
-  onNavigate,
-  onCompletePurchase 
-}) => {
-  const [isProcessing, setIsProcessing] = useState(false);
-  const [isSuccess, setIsSuccess] = useState(false);
-  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('telebirr');
-  const [phoneNumber, setPhoneNumber] = useState('');
+/** Ethiopian mobile: 09xxxxxxxx / 07xxxxxxxx / +2519xxxxxxxx, spaces allowed. */
+const ETHIOPIAN_MOBILE = /^(?:\+?251|0)?(?:9|7)\d{8}$/;
+const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
-  const isBundle = 'includedCourseIds' in item;
-  const isCourse = 'lessonsCount' in item;
-  const itemType = isBundle ? 'bundle' : (isCourse ? 'course' : 'digital');
+export default function CheckoutPage() {
+  const { t, i18n } = useTranslation();
+  const { L } = useLocalized();
+  const navigate = useNavigate();
+  const { cart, cartTotal, user, payForCart, checkoutStatus, resetCheckout } = useStore();
 
-  const originalPrice = ('originalValue' in item && item.originalValue) 
-    ? item.originalValue 
-    : ('originalPrice' in item && item.originalPrice) 
-      ? item.originalPrice 
-      : null;
+  const [method, setMethod] = useState<PaymentMethod>('telebirr');
+  const [phone, setPhone] = useState('');
+  const [email, setEmail] = useState(user?.email ?? '');
+  const [accepted, setAccepted] = useState(false);
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [order, setOrder] = useState<Order | null>(null);
 
-  const handlePayment = (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsProcessing(true);
-    setTimeout(() => {
-      setIsProcessing(false);
-      setIsSuccess(true);
-    }, 2000);
-  };
+  useDocumentMeta({ title: t('checkout.title'), noIndex: true });
 
-  const finishCheckout = () => {
-    onCompletePurchase(item.id, itemType);
-  };
+  const selected = METHODS.find((m) => m.id === method)!;
+  const processing = checkoutStatus === 'processing';
 
-  if (isSuccess) {
+  // Empty cart and no completed order → nothing to pay for.
+  if (cart.length === 0 && !order) return <Navigate to="/cart" replace />;
+
+  function validate() {
+    const next: Record<string, string> = {};
+    if (selected.needsPhone && !ETHIOPIAN_MOBILE.test(phone.replace(/[\s-]/g, ''))) {
+      next.phone = t('checkout.phoneInvalid');
+    }
+    if (!EMAIL.test(email.trim())) next.email = t('checkout.emailInvalid');
+    if (!accepted) next.terms = t('checkout.termsRequired');
+    setErrors(next);
+    return Object.keys(next).length === 0;
+  }
+
+  async function handleSubmit(event: React.FormEvent) {
+    event.preventDefault();
+    if (processing) return;
+    if (!validate()) {
+      // Move focus to the first invalid control so the error is discoverable
+      // without sight. A silent red border is not an error message.
+      document.querySelector<HTMLElement>('[aria-invalid="true"]')?.focus();
+      return;
+    }
+    const placed = await payForCart(method, expandToOrderLines);
+    if (placed) setOrder(placed);
+  }
+
+  // ── Success ────────────────────────────────────────────────
+  if (order) {
+    const firstCourse = order.lines.find((line) => line.kind === 'course');
+    const firstProduct = order.lines.find((line) => line.kind === 'product');
+    const courseSlug = firstCourse ? getItem(firstCourse.itemId)?.slug : undefined;
+    const productSlug = firstProduct ? getItem(firstProduct.itemId)?.slug : undefined;
+
     return (
-      <div className="min-h-screen bg-[var(--color-bg-tertiary)] flex items-center justify-center p-4 pt-24 pb-20">
-        <div className="bg-[var(--color-card-bg)] rounded-3xl p-8 sm:p-10 max-w-lg w-full text-center shadow-2xl border border-[var(--color-border-primary)] animate-in zoom-in-95 duration-300">
-          <div className="w-20 h-20 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-6">
-            <CheckCircle2 className="w-10 h-10 text-[#20B486]" />
-          </div>
-          <h2 className="text-3xl font-black text-[#1E293B] mb-2">Purchase Complete!</h2>
-          <p className="text-[var(--color-text-muted)] font-medium mb-8">
-            Your payment was successful and your order has been created.
-          </p>
-          
-          <div className="bg-slate-50 rounded-xl p-5 mb-8 text-left border border-[var(--color-border-subtle)]">
-            <div className="text-xs font-bold text-[var(--color-text-tertiary)] uppercase tracking-wider mb-1">Access Granted For</div>
-            <div className="font-bold text-[#1E293B] text-lg mb-2 leading-snug">{item.title}</div>
-            {isBundle && (
-              <div className="text-xs font-bold text-[#8B5CF6] flex items-center gap-1.5 mt-2 bg-purple-50 w-max px-2 py-1 rounded">
-                <Layers className="w-3 h-3" /> All included items unlocked
-              </div>
-            )}
-          </div>
-
-          <button 
-            onClick={finishCheckout}
-            className="w-full py-4 rounded-xl bg-gradient-to-b from-[#3B82F6] to-[#2563EB] text-white font-bold text-lg shadow-[0_8px_20px_rgba(59,130,246,0.3)] border-b-[4px] border-[#1D4ED8] hover:border-b-[2px] hover:translate-y-[2px] transition-all cursor-pointer"
-          >
-            {isBundle ? 'Go to Dashboard' : isCourse ? 'Access Your Course' : 'Access Your Resource'}
-          </button>
+      <div className="mx-auto max-w-lg px-4 py-20 text-center sm:px-6">
+        <div className="animate-scale-in mx-auto grid size-16 place-items-center rounded-full bg-success-soft">
+          <CheckCircle2 className="size-8 text-success-text" aria-hidden />
         </div>
+        <h1 className="mt-6 text-2xl font-extrabold tracking-tight text-fg">
+          {t('checkout.successTitle')}
+        </h1>
+        <p className="mt-2 text-base text-fg-muted">
+          {t('checkout.successBody', { email: email.trim() })}
+        </p>
+
+        <p className="mx-auto mt-6 inline-block rounded-control bg-surface-2 px-4 py-2 text-sm text-fg-muted">
+          {t('checkout.orderRef')}:{' '}
+          <span className="font-mono font-extrabold tabular-nums text-fg">{order.id}</span>
+        </p>
+
+        <div className="mt-8 flex flex-col gap-3">
+          {courseSlug && (
+            <ButtonLink to={`/learn/${courseSlug}`} size="lg">
+              {t('checkout.startCourse')}
+            </ButtonLink>
+          )}
+          {!courseSlug && productSlug && (
+            <ButtonLink to={`/library/${productSlug}`} size="lg">
+              {t('checkout.downloadFiles')}
+            </ButtonLink>
+          )}
+          <ButtonLink to="/dashboard" variant="secondary" size="lg">
+            {t('checkout.goToLibrary')}
+          </ButtonLink>
+        </div>
+
+        <p className="mt-6 text-xs text-fg-subtle">{t('checkout.refundNote')}</p>
       </div>
     );
   }
 
+  // ── Form ───────────────────────────────────────────────────
   return (
-    <div className="min-h-screen bg-[var(--color-bg-tertiary)] pb-20 pt-28">
-      <div className="max-w-[1100px] mx-auto px-4 sm:px-6 lg:px-8">
-        
-        <button 
-          onClick={() => window.history.back()}
-          className="inline-flex items-center gap-2 text-[var(--color-text-muted)] hover:text-[#3B82F6] transition-colors text-sm font-bold mb-8 cursor-pointer"
-          aria-label="Go back"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          Back
-        </button>
+    <div className="mx-auto max-w-5xl px-4 py-12 sm:px-6 lg:px-8">
+      <h1 className="text-3xl font-extrabold tracking-tight text-fg">{t('checkout.title')}</h1>
+      <p className="mt-2 text-sm text-fg-muted">{t('checkout.subtitle')}</p>
 
-        <div className="flex flex-col lg:flex-row gap-10">
-          <div className="lg:w-3/5 space-y-8">
-            <div>
-              <h1 className="text-3xl font-black text-[#1E293B] mb-2">Checkout</h1>
-              <p className="text-[var(--color-text-muted)] font-medium">Complete your purchase securely via our payment gateway.</p>
+      <div className="mt-10 grid gap-10 lg:grid-cols-5">
+        <form onSubmit={handleSubmit} noValidate className="lg:col-span-3">
+          {checkoutStatus === 'failed' && (
+            <div
+              role="alert"
+              className="mb-6 flex gap-3 rounded-card border border-danger/40 bg-danger-soft p-4"
+            >
+              <AlertTriangle className="mt-0.5 size-5 shrink-0 text-danger-text" aria-hidden />
+              <div>
+                <p className="text-sm font-extrabold text-danger-text">
+                  {t('checkout.failedTitle')}
+                </p>
+                <p className="mt-1 text-sm text-fg-muted">{t('checkout.failedBody')}</p>
+              </div>
+            </div>
+          )}
+
+          <fieldset disabled={processing} className="contents">
+            <legend className="sr-only">{t('checkout.paymentMethod')}</legend>
+
+            <h2 className="text-base font-extrabold text-fg">{t('checkout.paymentMethod')}</h2>
+            <div
+              role="radiogroup"
+              aria-label={t('checkout.paymentMethod')}
+              className="mt-3 space-y-2.5"
+            >
+              {METHODS.map(({ id, icon: Icon }) => {
+                const active = method === id;
+                return (
+                  <label
+                    key={id}
+                    className={cn(
+                      'flex cursor-pointer items-start gap-3 rounded-card border p-4 transition-colors',
+                      active
+                        ? 'border-brand bg-brand-soft'
+                        : 'border-line bg-surface hover:border-brand/40',
+                    )}
+                  >
+                    <input
+                      type="radio"
+                      name="payment-method"
+                      value={id}
+                      checked={active}
+                      onChange={() => {
+                        setMethod(id);
+                        resetCheckout();
+                      }}
+                      className="mt-0.5 size-4 accent-[var(--cyan-500)]"
+                    />
+                    <Icon
+                      className={cn('mt-0.5 size-5 shrink-0', active ? 'text-brand-text' : 'text-fg-subtle')}
+                      aria-hidden
+                    />
+                    <span className="min-w-0">
+                      <span className="block text-sm font-extrabold text-fg">
+                        {t(`checkout.${id}`)}
+                      </span>
+                      <span className="mt-0.5 block text-xs leading-relaxed text-fg-muted">
+                        {t(`checkout.${id}Hint`)}
+                      </span>
+                    </span>
+                  </label>
+                );
+              })}
             </div>
 
-            <div className="bg-[var(--color-card-bg)] p-6 sm:p-8 rounded-3xl border border-[var(--color-border-primary)] shadow-sm">
-              <div className="flex items-center justify-between mb-6 pb-6 border-b border-[var(--color-border-subtle)]">
-                <h2 className="text-xl font-bold text-[#1E293B]">Select Payment Method</h2>
-                <div className="flex gap-3 items-center">
-                  <span className="text-xs font-bold text-[var(--color-text-tertiary)] uppercase tracking-wider hidden sm:inline-block">Secured by</span>
-                  <div className="flex items-center gap-1.5 bg-[#00A859]/10 px-4 py-2 sm:py-2.5 rounded-xl border border-[#00A859]/20 select-none">
-                    <img 
-                      src="https://res.cloudinary.com/dw1ohipim/image/upload/v1788632675/ld6lrrjjjomckurrj33r.png" 
-                      alt="Chapa" 
-                      className="h-7 sm:h-8 object-contain"
-                      onError={(e) => {
-                        e.currentTarget.style.display = 'none';
-                        e.currentTarget.parentElement?.insertAdjacentHTML('beforeend', '<span class="text-[#00A859] font-black text-sm">Chapa</span>');
+            <div className="mt-8 space-y-5">
+              {selected.needsPhone && (
+                <Field
+                  label={t('checkout.phoneLabel')}
+                  hint={t('checkout.phoneHint', { method: t(`checkout.${method}`) })}
+                  error={errors.phone}
+                  required
+                >
+                  {(props) => (
+                    <TextInput
+                      {...props}
+                      type="tel"
+                      inputMode="tel"
+                      autoComplete="tel-national"
+                      prefix="+251"
+                      placeholder="911 234 567"
+                      value={phone}
+                      onChange={(e) => setPhone(e.target.value)}
+                    />
+                  )}
+                </Field>
+              )}
+
+              <Field label={t('checkout.emailLabel')} error={errors.email} required>
+                {(props) => (
+                  <TextInput
+                    {...props}
+                    type="email"
+                    inputMode="email"
+                    autoComplete="email"
+                    placeholder="you@example.com"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                  />
+                )}
+              </Field>
+
+              <div>
+                <label className="flex cursor-pointer items-start gap-3">
+                  <input
+                    type="checkbox"
+                    checked={accepted}
+                    onChange={(e) => setAccepted(e.target.checked)}
+                    aria-invalid={Boolean(errors.terms)}
+                    aria-describedby={errors.terms ? 'terms-error' : undefined}
+                    className="mt-0.5 size-4 shrink-0 accent-[var(--cyan-500)]"
+                  />
+                  <span className="text-sm leading-relaxed text-fg-muted">
+                    <Trans
+                      i18nKey="checkout.terms"
+                      components={{
+                        1: <Link to="/legal/terms" className="font-bold text-brand-text underline" />,
+                        3: <Link to="/legal/refunds" className="font-bold text-brand-text underline" />,
                       }}
                     />
-                  </div>
-                </div>
+                  </span>
+                </label>
+                {errors.terms && (
+                  <p id="terms-error" role="alert" className="mt-1.5 text-sm font-semibold text-danger-text">
+                    {errors.terms}
+                  </p>
+                )}
               </div>
-
-              <form onSubmit={handlePayment} className="space-y-6">
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
-                  <button type="button" onClick={() => setPaymentMethod('telebirr')} className={`p-4 sm:p-5 rounded-2xl border-2 text-center transition-all flex flex-col items-center justify-center gap-2 cursor-pointer ${paymentMethod === 'telebirr' ? 'border-[#00AEEF] bg-[#00AEEF]/5 shadow-[0_4px_20px_rgba(0,174,239,0.15)]' : 'border-[var(--color-border-subtle)] bg-[var(--color-card-bg)] hover:border-[var(--color-border-primary)]'}`}>
-                    <div className="h-12 sm:h-14 w-full flex items-center justify-center"><img src="https://res.cloudinary.com/dw1ohipim/image/upload/v1788632382/wjtaklspt9asl4yteegl.png" alt="Telebirr" className={`h-full max-w-full object-contain transition-all duration-300 ${paymentMethod === 'telebirr' ? 'opacity-100 scale-110' : 'opacity-60 hover:opacity-80'}`} /></div>
-                  </button>
-                  <button type="button" onClick={() => setPaymentMethod('cbe')} className={`p-4 sm:p-5 rounded-2xl border-2 text-center transition-all flex flex-col items-center justify-center gap-2 cursor-pointer ${paymentMethod === 'cbe' ? 'border-[#4B2A75] bg-[#4B2A75]/5 shadow-[0_4px_20px_rgba(75,42,117,0.15)]' : 'border-[var(--color-border-subtle)] bg-[var(--color-card-bg)] hover:border-[var(--color-border-primary)]'}`}>
-                    <div className="h-12 sm:h-14 w-full flex items-center justify-center"><img src="https://res.cloudinary.com/dw1ohipim/image/upload/v1788632573/lxp7cb2oodriohs1rx1z.png" alt="CBE Birr" className={`h-full max-w-full object-contain transition-all duration-300 ${paymentMethod === 'cbe' ? 'opacity-100 scale-110' : 'opacity-60 hover:opacity-80'}`} /></div>
-                  </button>
-                  <button type="button" onClick={() => setPaymentMethod('chapa-hosted')} className={`p-4 sm:p-5 rounded-2xl border-2 text-center transition-all flex flex-col items-center justify-center gap-1.5 cursor-pointer ${paymentMethod === 'chapa-hosted' ? 'border-[#00A859] bg-[#00A859]/5 shadow-[0_4px_20px_rgba(0,168,89,0.15)]' : 'border-[var(--color-border-subtle)] bg-[var(--color-card-bg)] hover:border-[var(--color-border-primary)]'}`}>
-                    <div className="h-10 sm:h-12 w-full flex items-center justify-center mb-1"><img src="https://res.cloudinary.com/dw1ohipim/image/upload/v1788632675/ld6lrrjjjomckurrj33r.png" alt="Chapa" className={`h-full max-w-full object-contain transition-all duration-300 ${paymentMethod === 'chapa-hosted' ? 'opacity-100 scale-110' : 'opacity-60 hover:opacity-80'}`} /></div>
-                    <span className={`text-[11px] font-black uppercase tracking-wider transition-colors ${paymentMethod === 'chapa-hosted' ? 'text-[#00A859]' : 'text-[var(--color-text-tertiary)]'}`}>Other Banks</span>
-                  </button>
-                </div>
-
-                {(paymentMethod === 'telebirr' || paymentMethod === 'cbe') && (
-                  <div className="space-y-2 animate-in fade-in slide-in-from-bottom-2 duration-300">
-                    <label className="text-xs font-bold text-slate-700 uppercase tracking-wider">{paymentMethod === 'telebirr' ? 'Telebirr Mobile Number' : 'CBE Account / Phone Number'}</label>
-                    <div className="flex shadow-sm">
-                      <span className="inline-flex items-center px-4 rounded-l-xl border border-r-0 border-[var(--color-border-primary)] bg-slate-100 text-[var(--color-text-muted)] text-sm font-bold">+251</span>
-                      <input required type="tel" value={phoneNumber} onChange={(e) => setPhoneNumber(e.target.value)} placeholder="9XX XXX XXX" className="w-full bg-slate-50 border border-[var(--color-border-primary)] rounded-r-xl px-4 py-3.5 text-sm focus:outline-none focus:border-[#3B82F6] focus:ring-1 focus:ring-[#3B82F6] transition-all font-mono tracking-widest" />
-                    </div>
-                    <div className="flex items-start gap-2 pt-2 text-[#00A859]">
-                      <ShieldCheck className="w-4 h-4 shrink-0 mt-0.5" />
-                      <p className="text-[12px] font-medium leading-snug">A secure payment request will be sent to your mobile device. Please enter your PIN to authorize the transaction.</p>
-                    </div>
-                  </div>
-                )}
-
-                {paymentMethod === 'chapa-hosted' && (
-                  <div className="bg-slate-50 rounded-xl p-5 border border-[var(--color-border-subtle)] text-center animate-in fade-in slide-in-from-bottom-2 duration-300">
-                    <p className="text-sm font-medium text-[var(--color-text-secondary)]">You will be securely redirected to Chapa's official gateway to complete your payment.</p>
-                  </div>
-                )}
-
-                <button type="submit" disabled={isProcessing || ((paymentMethod === 'telebirr' || paymentMethod === 'cbe') && phoneNumber.length < 9)} className="w-full mt-8 py-4 rounded-xl bg-gradient-to-b from-[#3B82F6] to-[#2563EB] text-white font-bold text-lg shadow-[0_8px_20px_rgba(59,130,246,0.3)] border-b-[4px] border-[#1D4ED8] hover:border-b-[2px] hover:translate-y-[2px] transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-70 disabled:cursor-not-allowed">
-                  {isProcessing ? <><Loader2 className="w-5 h-5 animate-spin" /><span>Processing Secure Order...</span></> : <><ShieldCheck className="w-5 h-5" /><span>Pay ETB {item.price.toFixed(2)} Securely</span></>}
-                </button>
-              </form>
             </div>
+          </fieldset>
+
+          <Button
+            type="submit"
+            size="lg"
+            fullWidth
+            loading={processing}
+            className="mt-8"
+            leadingIcon={<Lock className="size-4" />}
+          >
+            {processing
+              ? t('checkout.processing')
+              : t('checkout.pay', { amount: formatPrice(cartTotal, i18n.language) })}
+          </Button>
+
+          {processing && (
+            <p role="status" className="mt-3 text-center text-sm text-fg-muted">
+              {t('checkout.processingHint')}
+            </p>
+          )}
+        </form>
+
+        {/* ── Order summary ───────────────────────────────── */}
+        <aside className="lg:col-span-2">
+          <div className="rounded-card border border-line bg-surface p-6 lg:sticky lg:top-24">
+            <h2 className="text-base font-extrabold text-fg">{t('checkout.orderSummary')}</h2>
+
+            <ul className="mt-4 space-y-3">
+              {cart.map((line) => (
+                <li key={line.itemId} className="flex items-center gap-3">
+                  <SmartImage
+                    src={line.thumbnail}
+                    alt=""
+                    ratio="16/9"
+                    wrapperClassName="w-16 shrink-0 rounded-md"
+                  />
+                  <span className="min-w-0 flex-1 truncate text-sm font-bold text-fg">
+                    {L(line, 'title')}
+                  </span>
+                  <span className="shrink-0 text-sm font-semibold text-fg-muted">
+                    {formatPrice(line.unitPrice, i18n.language)}
+                  </span>
+                </li>
+              ))}
+            </ul>
+
+            <dl className="mt-5 border-t border-line pt-4">
+              <div className="flex items-baseline justify-between">
+                <dt className="text-base font-extrabold text-fg">{t('cart.total')}</dt>
+                <dd className="text-2xl font-extrabold text-fg">
+                  {formatPrice(cartTotal, i18n.language)}
+                </dd>
+              </div>
+            </dl>
+
+            <button
+              type="button"
+              onClick={() => navigate('/cart')}
+              className="mt-4 text-sm font-bold text-brand-text underline"
+            >
+              {t('common.back')}
+            </button>
+
+            <p className="mt-5 flex items-start gap-2 border-t border-line pt-4 text-xs leading-relaxed text-fg-subtle">
+              <Lock className="mt-0.5 size-3.5 shrink-0" aria-hidden />
+              {t('checkout.securedBy')} Chapa · Telebirr · CBE Birr
+            </p>
           </div>
-
-          <div className="lg:w-2/5">
-            <div className="bg-[var(--color-card-bg)] rounded-3xl p-6 border border-[var(--color-border-primary)] shadow-sm sticky top-28">
-              <h3 className="text-lg font-black text-[#1E293B] mb-6">Order Summary</h3>
-              <div className="flex gap-4 mb-6 pb-6 border-b border-[var(--color-border-subtle)]">
-                <img src={item.thumbnail} alt={item.title} className="w-24 h-16 rounded-lg object-cover border border-[var(--color-border-subtle)] shadow-sm" />
-                <div>
-                  <div className="font-bold text-[#1E293B] text-sm leading-snug mb-1">{item.title}</div>
-                  <div className="text-xs font-bold text-[var(--color-text-tertiary)] uppercase tracking-wider">{isBundle ? 'Premium Bundle' : isCourse ? 'Course' : 'Digital Resource'}</div>
-                </div>
-              </div>
-
-              <div className="space-y-3 mb-6 pb-6 border-b border-[var(--color-border-subtle)] text-sm">
-                <div className="flex justify-between text-[var(--color-text-secondary)]">
-                  <span className="font-medium">Original Price</span>
-                  <span className="font-bold">ETB {(originalPrice || item.price).toFixed(2)}</span>
-                </div>
-                {originalPrice && originalPrice > item.price && (
-                  <div className="flex justify-between text-[#20B486]">
-                    <span className="font-bold">Awraq Discount</span>
-                    <span className="font-bold">- ETB {(originalPrice - item.price).toFixed(2)}</span>
-                  </div>
-                )}
-              </div>
-
-              <div className="flex justify-between items-center mb-6">
-                <span className="text-base font-black text-[#1E293B]">Total</span>
-                <span className="text-2xl font-black text-[#3B82F6]">ETB {item.price.toFixed(2)}</span>
-              </div>
-
-              <div className="bg-blue-50 rounded-xl p-4 flex items-start gap-3 border border-blue-100">
-                {isBundle ? <Layers className="w-5 h-5 text-[#3B82F6] shrink-0 mt-0.5" /> : isCourse ? <PlayCircle className="w-5 h-5 text-[#3B82F6] shrink-0 mt-0.5" /> : <Download className="w-5 h-5 text-[#3B82F6] shrink-0 mt-0.5" />}
-                <div>
-                  <div className="text-xs font-bold text-[#1E293B] mb-0.5">{isBundle ? 'Multiple Items Unlocked' : isCourse ? 'Lifetime Course Access' : 'Instant File Download'}</div>
-                  <div className="text-[11px] font-medium text-[var(--color-text-secondary)] leading-relaxed">{isBundle ? 'Courses will go to My Learning and files to My Resources.' : isCourse ? 'Immediate access to all lessons, updates, and resources.' : 'Secure access to download your digital product immediately.'}</div>
-                </div>
-              </div>
-
-            </div>
-          </div>
-
-        </div>
+        </aside>
       </div>
     </div>
   );
-};
+}

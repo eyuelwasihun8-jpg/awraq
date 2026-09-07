@@ -1,229 +1,115 @@
-import React from 'react';
 import { useTranslation } from 'react-i18next';
+import { Link } from 'react-router-dom';
+import { Facebook, Linkedin, Mail, Send, Youtube } from 'lucide-react';
 import { BrandLogo } from './BrandLogo';
-import { Page } from '../types';
-import { Twitter, Linkedin, Github, Globe, Facebook } from 'lucide-react';
 
-interface FooterProps {
-  onNavigate: (page: Page) => void;
-  onOpenConsultation: () => void;
-}
-
-export const Footer: React.FC<FooterProps> = ({ onNavigate, onOpenConsultation }) => {
+/**
+ * Footer.
+ *
+ * The legal column previously linked to `#terms` and `#privacy` — anchors to
+ * pages that did not exist. You cannot take payments without published terms,
+ * a privacy policy and a refund policy, so all three are now real routes
+ * (AUDIT.md §H6).
+ */
+export function Footer() {
   const { t } = useTranslation();
+  const year = new Date().getFullYear();
 
-  const scrollToSection = (id: string) => {
-    onNavigate('home');
-    setTimeout(() => {
-      const element = document.getElementById(id);
-      if (element) {
-        const y = element.getBoundingClientRect().top + window.pageYOffset - 80;
-        window.scrollTo({ top: y, behavior: 'smooth' });
-      }
-    }, 100);
-  };
+  const columns = [
+    {
+      heading: t('footer.learn'),
+      links: [
+        { to: '/courses', label: t('nav.courses') },
+        { to: '/resources', label: t('nav.resources') },
+        { to: '/free', label: t('nav.freeSessions') },
+      ],
+    },
+    {
+      heading: t('footer.company'),
+      links: [
+        { to: '/about', label: t('nav.about') },
+        { to: '/consultation', label: t('nav.bookConsultation') },
+        { to: '/contact', label: t('nav.contact') },
+      ],
+    },
+    {
+      heading: t('footer.legal'),
+      links: [
+        { to: '/legal/terms', label: t('legal.terms') },
+        { to: '/legal/privacy', label: t('legal.privacy') },
+        { to: '/legal/refunds', label: t('legal.refunds') },
+      ],
+    },
+  ];
+
+  const socials = [
+    { href: 'https://t.me/awraq', label: 'Telegram', Icon: Send },
+    { href: 'https://facebook.com/awraq', label: 'Facebook', Icon: Facebook },
+    { href: 'https://youtube.com/@awraq', label: 'YouTube', Icon: Youtube },
+    { href: 'https://linkedin.com/company/awraq', label: 'LinkedIn', Icon: Linkedin },
+  ];
 
   return (
-    <footer
-      id="main-footer"
-      className="bg-[#0D1527] text-gray-400 pt-12 sm:pt-16 pb-8 sm:pb-10 border-t border-gray-800 safe-bottom"
-    >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-2 md:grid-cols-12 gap-8 lg:gap-12 pb-10 sm:pb-14 border-b border-gray-800">
-          {/* Brand */}
-          <div className="col-span-2 md:col-span-4 space-y-4">
-            <div className="flex items-start">
-              <BrandLogo variant="light" size="md" />
-            </div>
-            <p className="text-sm text-gray-400 max-w-xs leading-relaxed">
-              {t(
-                'sections.learnSimpleWay.description',
-                'Top learning experiences that create more talent in the world.'
-              ).slice(0, 120)}
-              ...
+    <footer className="border-t border-white/10 bg-ink-deep text-white/70">
+      <div className="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8">
+        <div className="grid gap-10 md:grid-cols-12">
+          <div className="md:col-span-5">
+            <BrandLogo tone="light" />
+            <p className="mt-4 max-w-xs text-sm leading-relaxed text-white/60">
+              {t('footer.blurb')}
             </p>
+            <a
+              href="mailto:hello@awraq.et"
+              className="mt-5 inline-flex items-center gap-2 text-sm font-bold text-white transition-colors hover:text-brand"
+            >
+              <Mail className="size-4" aria-hidden />
+              hello@awraq.et
+            </a>
           </div>
 
-          {/* Product */}
-          <div className="col-span-1 md:col-span-2 space-y-3">
-            <h4 className="text-sm font-semibold text-white tracking-wider">
-              {t('nav.courses')}
-            </h4>
-            <ul className="space-y-1 text-sm">
-              <li>
-                <button
-                  onClick={() => scrollToSection('courses')}
-                  className="hover:text-white transition-colors cursor-pointer py-2 text-left min-h-[40px]"
-                >
-                  {t('nav.allCourses')}
-                </button>
-              </li>
-              <li>
-                <button
-                  onClick={() => scrollToSection('resources')}
-                  className="hover:text-white transition-colors cursor-pointer py-2 text-left min-h-[40px]"
-                >
-                  {t('nav.resources')}
-                </button>
-              </li>
-              <li>
-                <button
-                  onClick={() => scrollToSection('learning')}
-                  className="hover:text-white transition-colors cursor-pointer py-2 text-left min-h-[40px]"
-                >
-                  {t('nav.freeSessions')}
-                </button>
-              </li>
-            </ul>
-          </div>
+          {columns.map((column) => (
+            <nav key={column.heading} aria-label={column.heading} className="md:col-span-2">
+              <h2 className="text-sm font-extrabold text-white">{column.heading}</h2>
+              <ul className="mt-3 space-y-1">
+                {column.links.map((link) => (
+                  <li key={link.to}>
+                    <Link
+                      to={link.to}
+                      className="inline-flex min-h-10 items-center text-sm text-white/60 transition-colors hover:text-white"
+                    >
+                      {link.label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </nav>
+          ))}
 
-          {/* Company */}
-          <div className="col-span-1 md:col-span-2 space-y-3">
-            <h4 className="text-sm font-semibold text-white tracking-wider">
-              {t('nav.about')}
-            </h4>
-            <ul className="space-y-1 text-sm">
-              <li>
-                <button
-                  onClick={() => scrollToSection('about')}
-                  className="hover:text-white transition-colors cursor-pointer py-2 text-left min-h-[40px]"
-                >
-                  {t('nav.about')}
-                </button>
-              </li>
-              <li>
-                <button
-                  onClick={() => scrollToSection('contact')}
-                  className="hover:text-white transition-colors cursor-pointer py-2 text-left min-h-[40px]"
-                >
-                  {t('nav.contact')}
-                </button>
-              </li>
-            </ul>
-          </div>
-
-          {/* Social */}
-          <div className="col-span-1 md:col-span-2 space-y-3">
-            <h4 className="text-sm font-semibold text-white tracking-wider">Social</h4>
-            <ul className="space-y-1 text-sm">
-              <li>
-                <a
-                  href="https://twitter.com"
-                  target="_blank"
-                  rel="noreferrer"
-                  className="hover:text-white transition-colors inline-flex py-2 min-h-[40px] items-center"
-                >
-                  Twitter
-                </a>
-              </li>
-              <li>
-                <a
-                  href="https://linkedin.com"
-                  target="_blank"
-                  rel="noreferrer"
-                  className="hover:text-white transition-colors inline-flex py-2 min-h-[40px] items-center"
-                >
-                  LinkedIn
-                </a>
-              </li>
-              <li>
-                <a
-                  href="https://github.com"
-                  target="_blank"
-                  rel="noreferrer"
-                  className="hover:text-white transition-colors inline-flex py-2 min-h-[40px] items-center"
-                >
-                  GitHub
-                </a>
-              </li>
-            </ul>
-          </div>
-
-          {/* Legal + Consultation */}
-          <div className="col-span-1 md:col-span-2 space-y-3">
-            <h4 className="text-sm font-semibold text-white tracking-wider">Legal</h4>
-            <ul className="space-y-1 text-sm">
-              <li>
-                <a
-                  href="#terms"
-                  className="hover:text-white transition-colors inline-flex py-2 min-h-[40px] items-center"
-                >
-                  Terms
-                </a>
-              </li>
-              <li>
-                <a
-                  href="#privacy"
-                  className="hover:text-white transition-colors inline-flex py-2 min-h-[40px] items-center"
-                >
-                  Privacy
-                </a>
-              </li>
-              <li>
-                <button
-                  onClick={onOpenConsultation}
-                  className="hover:text-white transition-colors cursor-pointer py-2 text-left min-h-[40px] text-[#07CCFD] font-semibold"
-                >
-                  {t('nav.bookConsultation')}
-                </button>
-              </li>
+          <div className="md:col-span-1">
+            <h2 className="text-sm font-extrabold text-white">{t('footer.social')}</h2>
+            <ul className="mt-3 flex gap-1.5 md:flex-col md:gap-1">
+              {socials.map(({ href, label, Icon }) => (
+                <li key={label}>
+                  <a
+                    href={href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="grid size-10 place-items-center rounded-control text-white/60 transition-colors hover:bg-white/10 hover:text-white"
+                    aria-label={label}
+                  >
+                    <Icon className="size-4" aria-hidden />
+                  </a>
+                </li>
+              ))}
             </ul>
           </div>
         </div>
 
-        <div className="pt-6 sm:pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-gray-500">
-          <p className="text-center sm:text-left">
-            © {new Date().getFullYear()} Awraq. All rights reserved.
-          </p>
-          <div className="flex items-center gap-5 text-gray-400">
-            <a
-              href="https://twitter.com"
-              target="_blank"
-              rel="noreferrer"
-              className="hover:text-white transition-colors p-2"
-              aria-label="Twitter"
-            >
-              <Twitter className="w-4 h-4" />
-            </a>
-            <a
-              href="https://linkedin.com"
-              target="_blank"
-              rel="noreferrer"
-              className="hover:text-white transition-colors p-2"
-              aria-label="LinkedIn"
-            >
-              <Linkedin className="w-4 h-4" />
-            </a>
-            <a
-              href="https://facebook.com"
-              target="_blank"
-              rel="noreferrer"
-              className="hover:text-white transition-colors p-2"
-              aria-label="Facebook"
-            >
-              <Facebook className="w-4 h-4" />
-            </a>
-            <a
-              href="https://github.com"
-              target="_blank"
-              rel="noreferrer"
-              className="hover:text-white transition-colors p-2"
-              aria-label="GitHub"
-            >
-              <Github className="w-4 h-4" />
-            </a>
-            <a
-              href="https://dribbble.com"
-              target="_blank"
-              rel="noreferrer"
-              className="hover:text-white transition-colors p-2"
-              aria-label="Website"
-            >
-              <Globe className="w-4 h-4" />
-            </a>
-          </div>
+        <div className="mt-12 flex flex-col items-center justify-between gap-3 border-t border-white/10 pt-6 text-xs text-white/50 sm:flex-row">
+          <p>{t('footer.rights', { year })}</p>
+          <p>{t('footer.builtIn')}</p>
         </div>
       </div>
     </footer>
   );
-};
+}

@@ -1,43 +1,100 @@
-export type Page = 
-  | 'home' 
-  | 'about' 
-  | 'learning' 
-  | 'courses' 
-  | 'resources' 
-  | 'contact'
-  | 'course-detail' 
-  | 'digital-product'
-  | 'bundle-detail'
-  | 'resource-access'
-  | 'checkout' 
-  | 'dashboard' 
-  | 'learn'
-  | 'certificate';
+/**
+ * Domain model.
+ *
+ * Design notes:
+ * - Catalogue items are a discriminated union on `kind`. The old code detected
+ *   type with structural probes like `'includedCourseIds' in item` and
+ *   `'lessonsCount' in item`, which silently misclassified anything that
+ *   gained a field. `kind` makes it explicit and exhaustively checkable.
+ * - Every user-visible string has an optional `_am` sibling consumed by
+ *   `useLocalized`.
+ * - Money is stored as a plain number of Birr and formatted at the edge only.
+ */
 
-export type ProductStatus = 'Draft' | 'Published' | 'Archived';
+// ───────────────────────────────────────────────────────────────
+// Shared
+// ───────────────────────────────────────────────────────────────
 
-// ────────────────────────────────────────────────────────────
-// RESOURCE & LESSON TYPES
-// ────────────────────────────────────────────────────────────
+export type Level = 'Beginner' | 'Intermediate' | 'Advanced' | 'All Levels';
+export type LessonType = 'video' | 'reading' | 'quiz' | 'resource';
+export type PublishStatus = 'draft' | 'published' | 'archived';
 
-export interface Resource {
+export interface Instructor {
   id: string;
   name: string;
   name_am?: string;
+  role: string;
+  role_am?: string;
+  avatar: string;
+  bio: string;
+  bio_am?: string;
+  /** Used in trust copy; keep it honest and update it yearly. */
+  yearsExperience: number;
+}
+
+export interface Attachment {
+  id: string;
+  name: string;
+  name_am?: string;
+  /** Human-readable, e.g. "2.4 MB". Display only. */
+  size: string;
+  /** MIME-ish label shown in the UI: "PDF", "Excel", "ZIP Archive". */
   type: string;
-  url: string;
+  /**
+   * Download URL. In production this is a short-lived signed URL minted by the
+   * backend after an entitlement check — never a public object URL.
+   * `null` means "not yet provisioned" and the UI renders a disabled state
+   * rather than an anchor to "#".
+   */
+  url: string | null;
+}
+
+// ───────────────────────────────────────────────────────────────
+// Course
+// ───────────────────────────────────────────────────────────────
+
+/** A WebVTT caption/subtitle track for a lesson video. */
+export interface CaptionTrack {
+  /** BCP-47 tag, e.g. 'am' or 'en'. */
+  srcLang: string;
+  /** Human label shown in the player's subtitle menu. */
+  label: string;
+  /** URL of the .vtt file. */
+  src: string;
+  default?: boolean;
 }
 
 export interface Lesson {
   id: string;
   title: string;
   title_am?: string;
-  type: 'video' | 'reading' | 'quiz' | 'resource';
-  duration?: string;
+  type: LessonType;
+  /** mm:ss */
+  duration: string;
   description?: string;
   description_am?: string;
-  videoUrl?: string;
-  resources?: Resource[];
+  /**
+   * Playable source. `null` = content not yet uploaded; the player renders an
+   * explicit "coming soon" state instead of a dead play button.
+   */
+  videoUrl: string | null;
+  /**
+   * Caption tracks. Empty until the videos are transcribed.
+   *
+   * Captions are not optional polish for this audience: they make lessons
+   * usable in a noisy shop, on mute, and by deaf learners, and they let people
+   * follow an English lesson while reading Amharic. Treat authoring these as a
+   * launch requirement, not a nice-to-have.
+   */
+  captions?: CaptionTrack[];
+  /** Poster frame; falls back to the course thumbnail. */
+  posterUrl?: string;
+  /** Markdown-ish body for `type: 'reading'`. */
+  body?: string;
+  body_am?: string;
+  attachments?: Attachment[];
+  /** Free preview lessons are playable before purchase. */
+  isPreview?: boolean;
 }
 
 export interface Module {
@@ -49,268 +106,193 @@ export interface Module {
   lessons: Lesson[];
 }
 
-// ────────────────────────────────────────────────────────────
-// COURSE TYPE
-// ────────────────────────────────────────────────────────────
-
 export interface Course {
+  kind: 'course';
   id: string;
+  slug: string;
   title: string;
   title_am?: string;
-  slug: string;
   category: string;
   category_am?: string;
-  price: number;
-  originalPrice?: number;
-  currency: 'ETB';
-  duration: string;
-  lessonsCount: number;
-  rating: number;
-  reviewsCount: number;
   description: string;
   description_am?: string;
-  instructor: {
-    name: string;
-    name_am?: string;
-    role: string;
-    role_am?: string;
-    avatar: string;
-    bio?: string;
-    bio_am?: string;
-  };
+  /** One-line summary for cards and meta descriptions. */
+  summary: string;
+  summary_am?: string;
+  price: number;
+  originalPrice?: number;
+  /** Human-readable total, e.g. "14 hr 30 mins". */
+  duration: string;
+  level: Level;
   thumbnail: string;
-  isPopular?: boolean;
-  isBestValue?: boolean;
-  isFree?: boolean;
-  level: 'Beginner' | 'Intermediate' | 'All Levels' | 'Advanced';
+  instructor: Instructor;
   modules: Module[];
   highlights: string[];
   highlights_am?: string[];
+  outcomes: string[];
+  outcomes_am?: string[];
+  requirements?: string[];
+  requirements_am?: string[];
+  isFree?: boolean;
+  isPopular?: boolean;
+  status: PublishStatus;
+  /**
+   * Ratings are optional and only rendered when `reviewsCount > 0`.
+   * The old build hardcoded "4.9 from 384 reviews" with no review system
+   * behind it — unverifiable social proof is worse than none.
+   */
+  rating?: number;
+  reviewsCount?: number;
+  publishedAt: string;
 }
 
-// ────────────────────────────────────────────────────────────
-// DIGITAL PRODUCT ARCHITECTURE
-// ────────────────────────────────────────────────────────────
-
-export interface DigitalFile {
-  id: string;
-  name: string;
-  name_am?: string;
-  size: string;
-  type: string;
-  url: string;
-}
+// ───────────────────────────────────────────────────────────────
+// Digital product
+// ───────────────────────────────────────────────────────────────
 
 export interface DigitalProduct {
+  kind: 'product';
   id: string;
   slug: string;
   title: string;
   title_am?: string;
-  description: string;
-  description_am?: string;
-  shortDescription: string;
-  shortDescription_am?: string;
-  price: number;
-  currency: 'ETB';
-  thumbnail: string;
   category: string;
   category_am?: string;
-  files: DigitalFile[];
+  summary: string;
+  summary_am?: string;
+  description: string;
+  description_am?: string;
+  price: number;
+  originalPrice?: number;
+  thumbnail: string;
+  files: Attachment[];
+  highlights: string[];
+  highlights_am?: string[];
   previewUrl?: string;
-  status: ProductStatus;
-  includes: string[];
-  includes_am?: string[];
-  whoIsItFor: string[];
-  whoIsItFor_am?: string[];
-  createdAt: string;
-  updatedAt: string;
-  publishedAt?: string;
+  status: PublishStatus;
+  publishedAt: string;
 }
 
-// ────────────────────────────────────────────────────────────
-// PURCHASE & TRANSACTION TYPES
-// ────────────────────────────────────────────────────────────
+// ───────────────────────────────────────────────────────────────
+// Bundle
+// ───────────────────────────────────────────────────────────────
 
-export interface PurchaseRecord {
+export interface Bundle {
+  kind: 'bundle';
   id: string;
+  slug: string;
+  title: string;
+  title_am?: string;
+  summary: string;
+  summary_am?: string;
+  description: string;
+  description_am?: string;
+  price: number;
+  /** Sum of member prices; used to compute and justify the saving. */
+  originalPrice: number;
+  thumbnail: string;
+  courseIds: string[];
+  productIds: string[];
+  status: PublishStatus;
+}
+
+export type CatalogItem = Course | DigitalProduct | Bundle;
+export type PurchasableKind = CatalogItem['kind'];
+
+// ───────────────────────────────────────────────────────────────
+// Free sessions (top-of-funnel video content)
+// ───────────────────────────────────────────────────────────────
+
+export interface FreeSession {
+  id: string;
+  slug: string;
+  title: string;
+  title_am?: string;
+  category: string;
+  category_am?: string;
+  description: string;
+  description_am?: string;
+  duration: string;
+  level: Level;
+  thumbnail: string;
+  youtubeId: string;
+  instructorId: string;
+  takeaways: string[];
+  takeaways_am?: string[];
+  watchCount: number;
+}
+
+// ───────────────────────────────────────────────────────────────
+// Commerce
+// ───────────────────────────────────────────────────────────────
+
+export type PaymentMethod = 'telebirr' | 'cbe' | 'chapa';
+export type OrderStatus = 'pending' | 'paid' | 'failed' | 'refunded';
+
+export interface CartLine {
   itemId: string;
-  itemTitle: string;
-  itemTitle_am?: string;
-  type: 'course' | 'digital' | 'bundle';
-  purchaseDate: string;
+  kind: PurchasableKind;
+  title: string;
+  title_am?: string;
+  thumbnail: string;
+  unitPrice: number;
+}
+
+export interface OrderLine extends CartLine {
+  /** Zero for items unlocked as part of a bundle. */
   pricePaid: number;
-  status: 'Completed' | 'Pending' | 'Revoked';
 }
 
-// ────────────────────────────────────────────────────────────
-// LEGACY RESOURCE ITEM (still used by some legacy code)
-// ────────────────────────────────────────────────────────────
-
-export interface ResourceItem {
+export interface Order {
   id: string;
-  title: string;
-  title_am?: string;
-  category: string;
-  category_am?: string;
-  price: number;
-  format: string;
-  pagesOrCount: string;
-  description: string;
-  description_am?: string;
-  thumbnail: string;
-  badge?: string;
-  badge_am?: string;
-  deliverables: string[];
-  deliverables_am?: string[];
+  /** ISO 8601. */
+  placedAt: string;
+  status: OrderStatus;
+  method: PaymentMethod;
+  lines: OrderLine[];
+  subtotal: number;
+  discount: number;
+  total: number;
 }
 
-// ────────────────────────────────────────────────────────────
-// BUNDLE TYPE
-// ────────────────────────────────────────────────────────────
+/** Flat entitlement grant — what the learner may actually access. */
+export interface Entitlement {
+  itemId: string;
+  kind: PurchasableKind;
+  grantedAt: string;
+  /** Order that produced this grant; supports refund reversal. */
+  orderId: string;
+}
 
-export interface BundleItem {
+// ───────────────────────────────────────────────────────────────
+// Learning progress
+// ───────────────────────────────────────────────────────────────
+
+export interface CourseProgress {
+  completedLessonIds: string[];
+  lastLessonId?: string;
+  /** ISO 8601. Set once, when the final lesson is completed. */
+  completedAt?: string;
+  startedAt: string;
+}
+
+export interface LessonNote {
+  courseId: string;
+  lessonId: string;
+  body: string;
+  /** Epoch ms. */
+  updatedAt: number;
+}
+
+// ───────────────────────────────────────────────────────────────
+// Auth
+// ───────────────────────────────────────────────────────────────
+
+export interface User {
   id: string;
-  slug: string;
-  title: string;
-  title_am?: string;
-  price: number;
-  originalValue: number;
-  currency: 'ETB';
-  description: string;
-  description_am?: string;
-  shortDescription: string;
-  shortDescription_am?: string;
-  thumbnail: string;
-  includedCourseIds: string[];
-  includedDigitalProductIds: string[];
-  features: string[];
-  features_am?: string[];
-  includes: string[];
-  includes_am?: string[];
-  status: ProductStatus;
+  fullName: string;
+  email: string;
+  phone?: string;
+  avatarUrl?: string;
+  createdAt: string;
 }
-
-// ────────────────────────────────────────────────────────────
-// SESSION & COHORT TYPES
-// ────────────────────────────────────────────────────────────
-
-export interface SessionItem {
-  id: string;
-  title: string;
-  title_am?: string;
-  price: 'FREE' | number;
-  category: string;
-  category_am?: string;
-  duration: string;
-  level: string;
-  description: string;
-  description_am?: string;
-  thumbnail: string;
-  keyTakeaways: string[];
-  keyTakeaways_am?: string[];
-  videoEmbedId?: string;
-  instructor: string;
-  instructor_am?: string;
-  viewsOrAttendees: string;
-}
-
-export interface LiveCohort {
-  id: string;
-  title: string;
-  title_am?: string;
-  date: string;
-  time: string;
-  seatsLeft: number;
-  format: string;
-  format_am?: string;
-  instructor: string;
-  topic: string;
-  topic_am?: string;
-  description: string;
-  description_am?: string;
-}
-
-// ────────────────────────────────────────────────────────────
-// ARTICLE TYPE
-// ────────────────────────────────────────────────────────────
-
-export interface ArticleItem {
-  id: string;
-  title: string;
-  title_am?: string;
-  slug: string;
-  category: string;
-  category_am?: string;
-  date: string;
-  readTime: string;
-  excerpt: string;
-  excerpt_am?: string;
-  content: string[];
-  content_am?: string[];
-  thumbnail: string;
-  author: {
-    name: string;
-    name_am?: string;
-    role: string;
-    role_am?: string;
-    avatar: string;
-  };
-  featured?: boolean;
-}
-
-// ────────────────────────────────────────────────────────────
-// VIDEO TYPE
-// ────────────────────────────────────────────────────────────
-
-export interface VideoItem {
-  id: string;
-  title: string;
-  title_am?: string;
-  category?: string;
-  category_am?: string;
-  duration: string;
-  description: string;
-  description_am?: string;
-  thumbnail: string;
-  youtubeId?: string;
-  embedId?: string;
-  views: string;
-}
-
-// ────────────────────────────────────────────────────────────
-// TESTIMONIAL TYPE
-// ────────────────────────────────────────────────────────────
-
-export interface TestimonialItem {
-  id: string;
-  quote: string;
-  quote_am?: string;
-  author: string;
-  author_am?: string;
-  role: string;
-  role_am?: string;
-  company?: string;
-  company_am?: string;
-  avatar: string;
-  highlightTag?: string;
-  highlightTag_am?: string;
-}
-
-// ────────────────────────────────────────────────────────────
-// FAQ TYPE
-// ────────────────────────────────────────────────────────────
-
-export interface FAQItem {
-  question: string;
-  question_am?: string;
-  answer: string;
-  answer_am?: string;
-  category?: string;
-  category_am?: string;
-}
-
-// ────────────────────────────────────────────────────────────
-// SUPPORTED LANGUAGE TYPE (utility)
-// ────────────────────────────────────────────────────────────
-
-export type SupportedLanguage = 'en' | 'am';

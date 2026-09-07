@@ -1,50 +1,65 @@
-import { BundleItem } from '../types';
+import type { Bundle } from '../types';
+import { COURSES } from './courses';
+import { DIGITAL_PRODUCTS } from './digitalProducts';
 
-export const BUNDLES: BundleItem[] = [
-  {
+/**
+ * Bundles.
+ *
+ * `originalPrice` is DERIVED from the members rather than typed by hand, so a
+ * price change on any course can never leave a bundle advertising a saving
+ * that no longer exists.
+ */
+function sumOf(courseIds: string[], productIds: string[]): number {
+  const courses = COURSES.filter((c) => courseIds.includes(c.id));
+  const products = DIGITAL_PRODUCTS.filter((p) => productIds.includes(p.id));
+  return [...courses, ...products].reduce((total, item) => total + item.price, 0);
+}
+
+function bundle(
+  input: Omit<Bundle, 'kind' | 'originalPrice' | 'status'> & { status?: Bundle['status'] },
+): Bundle {
+  return {
+    kind: 'bundle',
+    status: 'published',
+    ...input,
+    originalPrice: sumOf(input.courseIds, input.productIds),
+  };
+}
+
+export const BUNDLES: Bundle[] = [
+  bundle({
+    id: 'starter-bundle',
+    slug: 'starter-bundle',
+    title: 'Starter Bundle',
+    title_am: 'የመነሻ ጥቅል',
+    summary: 'Copywriting and social media, plus the two templates that support them.',
+    summary_am: 'ጽሑፍ አጻጻፍ እና ማኅበራዊ ሚዲያ፣ እንዲሁም የሚደግፏቸው ሁለት አብነቶች።',
+    description:
+      'The two skills that produce results fastest for a small business, paired with the templates that keep you consistent after the course ends.',
+    description_am:
+      'ለአነስተኛ ንግድ በፍጥነት ውጤት የሚያመጡት ሁለቱ ክህሎቶች፣ ኮርሱ ካለቀ በኋላ ወጥነት እንድትይዙ ከሚያደርጓችሁ አብነቶች ጋር ተጣምረው።',
+    price: 229,
+    thumbnail:
+      'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=1200&q=75',
+    courseIds: ['copywriting', 'social-growth'],
+    productIds: ['swipe-file', 'content-calendar'],
+  }),
+
+  bundle({
     id: 'complete-bundle',
-    slug: 'complete-awraq-bundle',
-    title: 'Complete Bundle',
-    price: 499.00,
-    originalValue: 790.00, 
-    currency: 'ETB',
-    shortDescription: 'Get all 3 premium courses and all 4 digital tools in one complete package to master your marketing from start to finish.',
-    description: 'The Complete Bundle is the ultimate digital marketing toolkit. It combines our most comprehensive step-by-step video courses with all our premium downloadable resources. Whether you are building a brand from scratch, running an agency, or scaling an e-commerce business, this bundle gives you lifetime access to every strategy, template, and swipe file you will ever need.',
-    thumbnail: 'https://images.unsplash.com/photo-1557804506-669a67965ba0?auto=format&fit=crop&w=800&q=80',
-    
-    // ✅ FIXED: These now match COURSES in courses.ts
-    includedCourseIds: [
-      'masterclass',
-      'copywriting',
-      'social-media'
-    ],
-    
-    // ✅ FIXED: These now match DIGITAL_PRODUCTS in digitalProducts.ts
-    includedDigitalProductIds: [
-      'dp-copywriting-swipe',
-      'dp-strategy-guide',
-      'dp-social-calendar',
-      'dp-email-templates'
-    ],
-    
-    features: [
-      'Lifetime access to all current and future lessons',
-      'Ask questions directly to Lamlak in live sessions',
-      'Easy templates in Notion, Google Sheets, and PDFs',
-      'Permission to use all materials for your own business or clients',
-      'Certificate of Completion from Awraq'
-    ],
-    
-    includes: [
-      'Complete Digital Marketing Masterclass',
-      'Copywriting for Conversion',
-      'Social Media Growth Blueprint',
-      'Copywriting Swipe Files',
-      'Digital Marketing Strategy Guide',
-      'Social Media Content Calendar',
-      'Email Marketing Template Pack'
-    ],
-    
-    status: 'Published'
-  }
+    slug: 'complete-bundle',
+    title: 'Everything Bundle',
+    title_am: 'ሁሉንም ያካተተ ጥቅል',
+    summary: 'All four paid courses and all four resources. The best value we offer.',
+    summary_am: 'አራቱም የሚከፈልባቸው ኮርሶች እና አራቱም ግብዓቶች። የምናቀርበው ምርጥ ዋጋ።',
+    description:
+      'Everything in the catalogue, including future updates to any course in it. If you are planning to take more than two courses, this costs less than buying them separately.',
+    description_am:
+      'በካታሎጉ ውስጥ ያለው ሁሉም ነገር፣ በውስጡ ላሉ ኮርሶች የሚደረጉ የወደፊት ዝማኔዎችን ጨምሮ። ከሁለት በላይ ኮርሶች ለመውሰድ ካሰባችሁ፣ ይህ ለየብቻ ከመግዛት ያነሰ ያስከፍላል።',
+    price: 449,
+    thumbnail:
+      'https://images.unsplash.com/photo-1513475382585-d06e58bcb0e0?auto=format&fit=crop&w=1200&q=75',
+    courseIds: ['masterclass', 'copywriting', 'social-growth', 'analytics'],
+    productIds: ['swipe-file', 'strategy-guide', 'content-calendar', 'email-pack'],
+  }),
 ];

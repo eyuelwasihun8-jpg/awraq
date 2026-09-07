@@ -1,60 +1,73 @@
-import { FAQItem } from '../types';
+export interface FaqItem {
+  id: string;
+  question: string;
+  question_am: string;
+  answer: string;
+  answer_am: string;
+}
 
-export const FAQ_ITEMS: FAQItem[] = [
+export const FAQ_ITEMS: FaqItem[] = [
   {
-    question: 'Do I need experience to start?',
+    id: 'experience',
+    question: 'Do I need any experience to start?',
     question_am: 'ለመጀመር ልምድ ያስፈልገኛል?',
-    answer: 'No experience needed. All courses start with the basics and explain everything in simple, everyday English. If you already have some experience, you will learn practical systems to get better results faster.',
-    answer_am: 'ምንም ልምድ አያስፈልግም። ሁሉም ኮርሶች ከመሰረታዊ ነገሮች ጀምረው ሁሉንም በቀላል ቋንቋ ያብራራሉ። ቀድሞ ልምድ ካልዎት፣ በፍጥነት የተሻለ ውጤት ለማግኘት ተግባራዊ ዘዴዎችን ይማራሉ።',
-    category: 'General'
+    answer:
+      'No. Start with the free Digital Marketing Foundations course — it assumes you know nothing and takes under an hour. If the words still feel unfamiliar after that, book a free 15-minute call and we will point you at the right starting place.',
+    answer_am:
+      'አያስፈልግም። በነጻው የዲጂታል ግብይት መሠረቶች ኮርስ ጀምሩ — ምንም እንደማታውቁ ወስዶ ከአንድ ሰዓት በታች ይወስዳል። ከዚያ በኋላም ቃላቱ እንግዳ ከሆኑባችሁ የ15 ደቂቃ ነጻ ጥሪ ያዙ፤ ትክክለኛውን መነሻ እናሳያችኋለን።',
   },
   {
-    question: 'Can beginners join?',
-    question_am: 'ጀማሪዎች መቀላቀል ይችላሉ?',
-    answer: 'Yes! Beginners are very welcome. We avoid complicated marketing words and show you step-by-step how to attract customers, write great copy, and grow your business.',
-    answer_am: 'አዎ! ጀማሪዎች በጣም እንኳን ደህና መጡ። ውስብስብ የማርኬቲንግ ቃላትን እናስወግዳለን፣ ደንበኞችን እንዴት እንደሚስቡ፣ ጥሩ ጽሁፍ እንዴት እንደሚጽፉ እና ንግድዎን እንዴት እንደሚያሳድጉ ደረጃ በደረጃ እናሳይዎታለን።',
-    category: 'Curriculum'
+    id: 'language',
+    question: 'Are the courses available in Amharic?',
+    question_am: 'ኮርሶቹ በአማርኛ ይገኛሉ?',
+    answer:
+      'Yes. Every page, course title, lesson and email is available in both Amharic and English. Use the language switcher in the top bar — your choice is remembered on this device.',
+    answer_am:
+      'አዎ። እያንዳንዱ ገጽ፣ የኮርስ ርዕስ፣ ትምህርት እና ኢሜይል በአማርኛም በእንግሊዝኛም ይገኛል። በላይኛው አሞሌ ላይ ያለውን የቋንቋ መቀየሪያ ተጠቀሙ — ምርጫችሁ በዚህ መሣሪያ ላይ ይታወሳል።',
   },
   {
-    question: 'Are the sessions free?',
-    question_am: 'ትምህርቶቹ ነጻ ናቸው?',
-    answer: 'Yes, our free sessions are completely free. You do not need to enter a credit card. You can watch them right away and learn real skills.',
-    answer_am: 'አዎ፣ ነጻ ትምህርቶቻችን ሙሉ በሙሉ ነጻ ናቸው። ክሬዲት ካርድ ማስገባት አያስፈልግዎትም። ወዲያውኑ ተመልክተው እውነተኛ ችሎታዎችን መማር ይችላሉ።',
-    category: 'Pricing'
+    id: 'payment',
+    question: 'How can I pay?',
+    question_am: 'እንዴት መክፈል እችላለሁ?',
+    answer:
+      'Telebirr, CBE Birr, or any Ethiopian bank card through Chapa. You will get a receipt by email immediately, and your course unlocks as soon as the payment confirms.',
+    answer_am:
+      'በቴሌብር፣ በCBE ብር፣ ወይም በChapa በኩል በማንኛውም የኢትዮጵያ ባንክ ካርድ። ወዲያውኑ በኢሜይል ደረሰኝ ይደርሳችኋል፤ ክፍያው እንደተረጋገጠም ኮርሳችሁ ይከፈታል።',
   },
   {
-    question: 'Are the lessons live or recorded?',
-    question_am: 'ትምህርቶቹ ቀጥታ ናቸው ወይስ የተቀረጹ?',
-    answer: 'Both! The main courses and free sessions are recorded in high quality so you can watch them anytime at your own speed. We also host live monthly workshops where you can ask Lamlak questions directly.',
-    answer_am: 'ሁለቱም! ዋና ኮርሶች እና ነጻ ትምህርቶች በከፍተኛ ጥራት ተቀርጸዋል፣ ስለዚህ በራስዎ ፍጥነት በማንኛውም ጊዜ ማየት ይችላሉ። እንዲሁም በየወሩ ቀጥታ ወርክሾፖችን እናዘጋጃለን፣ እዚያም ላምላክን በቀጥታ ጥያቄ መጠየቅ ይችላሉ።',
-    category: 'Format'
+    id: 'access',
+    question: 'How long do I keep access?',
+    question_am: 'ለምን ያህል ጊዜ ተደራሽነት አለኝ?',
+    answer:
+      'Forever. Paid courses include lifetime access and every future update to that course at no extra cost. Downloadable resources are yours to keep.',
+    answer_am:
+      'ለዘላለም። የሚከፈልባቸው ኮርሶች የዕድሜ ልክ ተደራሽነትን እና ለዚያ ኮርስ የሚደረጉ ሁሉንም የወደፊት ዝማኔዎች ያለተጨማሪ ክፍያ ያካትታሉ። የሚወርዱ ግብዓቶች የእናንተው ናቸው።',
   },
   {
-    question: 'How do I access the courses?',
-    question_am: 'ኮርሶቹን እንዴት ማግኘት እችላለሁ?',
-    answer: 'As soon as you join a course, you get instant access to your student dashboard. You can watch the video lessons, download templates, and use the worksheets right away.',
-    answer_am: 'ኮርስ እንደተቀላቀሉ ወዲያውኑ ወደ ዳሽቦርድዎ መዳረሻ ያገኛሉ። የቪዲዮ ትምህርቶችን መመልከት፣ ቅጦችን ማውረድ እና የስራ ወረቀቶችን ወዲያውኑ መጠቀም ይችላሉ።',
-    category: 'Access'
+    id: 'refund',
+    question: 'What if the course is not right for me?',
+    question_am: 'ኮርሱ ለእኔ የማይመች ከሆነስ?',
+    answer:
+      'Email us within 14 days of purchase and we will refund you in full, no questions asked, as long as you have completed less than half the lessons. Read the full terms on our refund policy page.',
+    answer_am:
+      'ከግዢ በኋላ በ14 ቀናት ውስጥ ኢሜይል ላኩልን፤ ከትምህርቶቹ ግማሽ በታች እስከጨረሳችሁ ድረስ ያለምንም ጥያቄ ሙሉ ገንዘባችሁን እንመልሳለን። ሙሉ ውሉን በተመላሽ ገንዘብ ፖሊሲ ገጻችን ላይ አንብቡ።',
   },
   {
-    question: 'Can I book a private consultation?',
-    question_am: 'የግል ምክር መያዝ እችላለሁ?',
-    answer: 'Yes. If you want personal advice for your business, you can book a one-on-one consultation with Lamlak. We will review your website, marketing, and goals together.',
-    answer_am: 'አዎ። ለንግድዎ የግል ምክር ከፈለጉ፣ ከላምላክ ጋር የግል ምክር መያዝ ይችላሉ። ድር ጣቢያዎን፣ ማርኬቲንግዎን እና ግቦችዎን አብረን እንገመግማለን።',
-    category: 'Consultation'
+    id: 'consultation',
+    question: 'What happens in a 1-on-1 consultation?',
+    question_am: 'በአንድ ለአንድ ምክክር ላይ ምን ይሆናል?',
+    answer:
+      'A 60-minute video call where we look at your actual business — your site, your ads, your numbers — and leave you with a written list of what to change first. You get the recording and the notes afterwards.',
+    answer_am:
+      'የ60 ደቂቃ የቪዲዮ ጥሪ ሲሆን የእናንተን ትክክለኛ ንግድ — ድረ-ገጻችሁን፣ ማስታወቂያዎቻችሁን፣ ቁጥሮቻችሁን — እንመለከትና መጀመሪያ ምን መቀየር እንዳለበት የተጻፈ ዝርዝር እንሰጣችኋለን። ቀረጻውንና ማስታወሻውን በኋላ ታገኛላችሁ።',
   },
   {
-    question: 'How long does a course take to finish?',
-    question_am: 'አንድ ኮርስ ለመጨረስ ምን ያህል ጊዜ ይወስዳል?',
-    answer: 'Most courses take between 6 to 15 hours. You can finish them comfortably in 2 to 3 weeks by watching a few lessons each week.',
-    answer_am: 'አብዛኞቹ ኮርሶች ከ6 እስከ 15 ሰዓት ይወስዳሉ። በሳምንት ጥቂት ትምህርቶችን በመመልከት በ2 እስከ 3 ሳምንታት ውስጥ በምቾት መጨረስ ይችላሉ።',
-    category: 'Format'
+    id: 'certificate',
+    question: 'Do I get a certificate?',
+    question_am: 'የምስክር ወረቀት አገኛለሁ?',
+    answer:
+      'Yes, for every paid course you finish. Each certificate has a unique ID and a public verification link, so an employer can confirm it is real. You can download it as a PDF or add it to LinkedIn in one click.',
+    answer_am:
+      'አዎ፣ ለምትጨርሱት ለእያንዳንዱ የሚከፈልበት ኮርስ። እያንዳንዱ የምስክር ወረቀት ልዩ መለያ እና ይፋዊ የማረጋገጫ አገናኝ አለው፤ ስለዚህ ቀጣሪ እውነተኛ መሆኑን ማረጋገጥ ይችላል። እንደ PDF ማውረድ ወይም በአንድ ጠቅታ ወደ LinkedIn ማከል ትችላላችሁ።',
   },
-  {
-    question: 'What topics do you teach?',
-    question_am: 'ምን አይነት ርዕሶች ታስተምራላችሁ?',
-    answer: 'We teach the core skills of digital marketing: copywriting, SEO, social media growth, email marketing, marketing strategy, and simple analytics.',
-    answer_am: 'የዲጂታል ማርኬቲንግ ዋና ችሎታዎችን እናስተምራለን፡ ኮፒራይቲንግ፣ SEO፣ የሶሻል ሚዲያ እድገት፣ የኢሜይል ማርኬቲንግ፣ የማርኬቲንግ ስትራቴጂ እና ቀላል አናሊቲክስ።',
-    category: 'Curriculum'
-  }
 ];
